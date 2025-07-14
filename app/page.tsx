@@ -2,7 +2,7 @@
 
 import Image from "next/image"
 import Link from "next/link"
-import { Star, Check, ArrowRight, Play, Shield, Truck, Headphones } from "lucide-react"
+import { Star, Check, ArrowRight, Play, Shield, Truck, Coffee } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -10,14 +10,14 @@ import { Badge } from "@/components/ui/badge"
 export default function HomePage() {
   const features = [
     {
-      icon: <Headphones className="w-6 h-6" />,
-      title: "Active Noise Cancellation",
-      description: "Block out the world and immerse yourself in pure audio",
+      icon: <Coffee className="w-6 h-6" />,
+      title: "Authentic Italian Design",
+      description: "Traditional stovetop brewing for rich, authentic espresso",
     },
     {
       icon: <Shield className="w-6 h-6" />,
-      title: "30-Hour Battery Life",
-      description: "All-day listening with quick charge technology",
+      title: "Premium Materials",
+      description: "High-grade aluminum construction for durability and heat distribution",
     },
     {
       icon: <Truck className="w-6 h-6" />,
@@ -27,12 +27,12 @@ export default function HomePage() {
   ]
 
   const specs = [
-    "Active Noise Cancellation with transparency mode",
-    "30-hour battery life with 5-minute quick charge",
-    "Premium memory foam ear cushions",
-    "Bluetooth 5.0 with multipoint connection",
-    "Built-in voice assistant support",
-    "Foldable design with premium carrying case",
+    "Traditional Italian stovetop brewing method",
+    "High-grade aluminum construction",
+    "Ergonomic heat-resistant handle",
+    "Available in multiple sizes (3, 6, 9 cup)",
+    "Compatible with gas, electric, and ceramic stovetops",
+    "Easy to clean and maintain",
   ]
 
   const renderStars = (rating: number) => {
@@ -47,19 +47,19 @@ export default function HomePage() {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-gray-50 to-white py-20">
+      <section className="bg-gradient-to-br from-amber-50 to-orange-50 py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-8">
               <div>
-                <Badge className="mb-4">New Release</Badge>
+                <Badge className="mb-4 bg-orange-100 text-orange-800">Authentic Italian</Badge>
                 <h1 className="text-4xl lg:text-6xl font-bold text-gray-900 leading-tight">
-                  Premium Wireless
-                  <span className="text-blue-600"> Noise-Canceling</span> Headphones
+                  Classic Italian
+                  <span className="text-orange-600"> Mocha Pot</span>
                 </h1>
                 <p className="text-xl text-gray-600 mt-6 leading-relaxed">
-                  Experience studio-quality sound with industry-leading noise cancellation. Perfect for music lovers,
-                  professionals, and travelers.
+                  Experience the authentic taste of Italian espresso with our traditional stovetop mocha pot. Perfect
+                  for coffee enthusiasts who appreciate the ritual of brewing.
                 </p>
               </div>
 
@@ -72,17 +72,17 @@ export default function HomePage() {
 
               <div className="flex items-center gap-6">
                 <div>
-                  <span className="text-4xl font-bold text-gray-900">$299</span>
-                  <span className="text-2xl text-gray-500 line-through ml-3">$399</span>
+                  <span className="text-4xl font-bold text-gray-900">$89</span>
+                  <span className="text-2xl text-gray-500 line-through ml-3">$129</span>
                 </div>
                 <Badge variant="destructive" className="text-lg px-3 py-1">
-                  Save $100
+                  Save $40
                 </Badge>
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link href="/product">
-                  <Button size="lg" className="w-full sm:w-auto text-lg px-8 py-3">
+                  <Button size="lg" className="w-full sm:w-auto text-lg px-8 py-3 bg-orange-600 hover:bg-orange-700">
                     Shop Now
                     <ArrowRight className="w-5 h-5 ml-2" />
                   </Button>
@@ -95,10 +95,10 @@ export default function HomePage() {
             </div>
 
             <div className="relative">
-              <div className="aspect-square rounded-2xl overflow-hidden bg-gradient-to-br from-blue-100 to-purple-100 p-8">
+              <div className="aspect-square rounded-2xl overflow-hidden bg-gradient-to-br from-orange-100 to-amber-100 p-8">
                 <Image
-                  src="/placeholder.svg?height=600&width=600"
-                  alt="Premium Wireless Headphones"
+                  src="/images/mocha-pot.jpg"
+                  alt="Classic Italian Mocha Pot"
                   width={600}
                   height={600}
                   className="w-full h-full object-cover rounded-xl"
@@ -107,14 +107,14 @@ export default function HomePage() {
               {/* Floating elements */}
               <div className="absolute -top-4 -right-4 bg-white rounded-full p-4 shadow-lg">
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-green-600">30h</div>
-                  <div className="text-xs text-gray-600">Battery</div>
+                  <div className="text-2xl font-bold text-orange-600">6</div>
+                  <div className="text-xs text-gray-600">Cups</div>
                 </div>
               </div>
               <div className="absolute -bottom-4 -left-4 bg-white rounded-full p-4 shadow-lg">
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-blue-600">ANC</div>
-                  <div className="text-xs text-gray-600">Active</div>
+                  <div className="text-2xl font-bold text-amber-600">5min</div>
+                  <div className="text-xs text-gray-600">Brew</div>
                 </div>
               </div>
             </div>
@@ -126,9 +126,9 @@ export default function HomePage() {
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">Why Choose AudioTech?</h2>
+            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">Why Choose Our Mocha Pot?</h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Engineered for perfection, designed for comfort, and built to last.
+              Crafted with tradition, designed for perfection, and built to last generations.
             </p>
           </div>
 
@@ -136,7 +136,7 @@ export default function HomePage() {
             {features.map((feature, index) => (
               <Card key={index} className="text-center p-8 hover:shadow-lg transition-shadow">
                 <CardContent className="p-0">
-                  <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6 text-blue-600">
+                  <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-6 text-orange-600">
                     {feature.icon}
                   </div>
                   <h3 className="text-xl font-semibold text-gray-900 mb-4">{feature.title}</h3>
@@ -164,7 +164,7 @@ export default function HomePage() {
               </div>
               <div className="mt-8">
                 <Link href="/product">
-                  <Button size="lg" className="text-lg px-8 py-3">
+                  <Button size="lg" className="text-lg px-8 py-3 bg-orange-600 hover:bg-orange-700">
                     View Full Details
                     <ArrowRight className="w-5 h-5 ml-2" />
                   </Button>
@@ -176,8 +176,8 @@ export default function HomePage() {
               <div className="space-y-4">
                 <div className="aspect-square rounded-xl overflow-hidden bg-white p-4">
                   <Image
-                    src="/placeholder.svg?height=300&width=300"
-                    alt="Headphones detail 1"
+                    src="/images/mocha-pot.jpg"
+                    alt="Mocha pot detail 1"
                     width={300}
                     height={300}
                     className="w-full h-full object-cover rounded-lg"
@@ -185,8 +185,8 @@ export default function HomePage() {
                 </div>
                 <div className="aspect-square rounded-xl overflow-hidden bg-white p-4">
                   <Image
-                    src="/placeholder.svg?height=300&width=300"
-                    alt="Headphones detail 2"
+                    src="/images/coffee-beans.jpg"
+                    alt="Coffee beans"
                     width={300}
                     height={300}
                     className="w-full h-full object-cover rounded-lg"
@@ -196,8 +196,8 @@ export default function HomePage() {
               <div className="space-y-4 mt-8">
                 <div className="aspect-square rounded-xl overflow-hidden bg-white p-4">
                   <Image
-                    src="/placeholder.svg?height=300&width=300"
-                    alt="Headphones detail 3"
+                    src="/images/coffee-blender.jpg"
+                    alt="Coffee blender"
                     width={300}
                     height={300}
                     className="w-full h-full object-cover rounded-lg"
@@ -205,8 +205,8 @@ export default function HomePage() {
                 </div>
                 <div className="aspect-square rounded-xl overflow-hidden bg-white p-4">
                   <Image
-                    src="/placeholder.svg?height=300&width=300"
-                    alt="Headphones detail 4"
+                    src="/images/coffee-cup-1.jpg"
+                    alt="Coffee cup"
                     width={300}
                     height={300}
                     className="w-full h-full object-cover rounded-lg"
@@ -219,24 +219,24 @@ export default function HomePage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-blue-600">
+      <section className="py-20 bg-orange-600">
         <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl lg:text-4xl font-bold text-white mb-6">Ready to Experience Premium Audio?</h2>
-          <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-            Join thousands of satisfied customers who have upgraded their audio experience. Free shipping on orders over
-            $300.
+          <h2 className="text-3xl lg:text-4xl font-bold text-white mb-6">Ready to Brew Like an Italian?</h2>
+          <p className="text-xl text-orange-100 mb-8 max-w-2xl mx-auto">
+            Join thousands of coffee lovers who have discovered the authentic taste of Italian espresso. Free shipping
+            on orders over $300.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/product">
               <Button size="lg" variant="secondary" className="text-lg px-8 py-3">
-                Shop Now - $299
+                Shop Now - $89
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
             </Link>
             <Button
               size="lg"
               variant="outline"
-              className="text-lg px-8 py-3 text-white border-white hover:bg-white hover:text-blue-600 bg-transparent"
+              className="text-lg px-8 py-3 text-white border-white hover:bg-white hover:text-orange-600 bg-transparent"
             >
               Learn More
             </Button>

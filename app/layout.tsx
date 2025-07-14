@@ -4,12 +4,13 @@ import { Inter } from "next/font/google"
 import "./globals.css"
 import { Navigation } from "@/components/navigation"
 import { CartProvider } from "@/components/cart-context"
+import { Toaster } from "@/components/ui/toaster"
 
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "AudioTech - Premium Wireless Headphones",
-  description: "Experience premium audio quality with our flagship wireless headphones",
+  title: "Coffee Shop - Premium Italian Coffee Products",
+  description: "Discover authentic Italian coffee products including mocha pots, coffee blenders, and premium beans.",
     generator: 'v0.dev'
 }
 
@@ -24,6 +25,7 @@ export default function RootLayout({
         <CartProvider>
           <Navigation />
           <main>{children}</main>
+          <Toaster />
         </CartProvider>
       </body>
     </html>

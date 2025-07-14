@@ -2,16 +2,16 @@
 
 import { useState, useEffect } from "react"
 import Image from "next/image"
-import Link from "next/link"
-import { Star, ShoppingCart, Plus, Check, Truck, ArrowLeft, Loader2 } from "lucide-react"
-
+import { Star, Heart, Share2, ShoppingCart, Check, Edit2, Save, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Progress } from "@/components/ui/progress"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Progress } from "@/components/ui/progress"
 import { useCart } from "@/components/cart-context"
-import { getInitialProductData } from "@/actions/product" // Import the new Server Action
+import { getInitialProductData, updateProduct } from "@/actions/product"
 
 interface Product {
   id: string
@@ -32,128 +32,100 @@ interface Bundle {
   savings: number
 }
 
+const recommendedProducts: Product[] = [
+  {
+    id: "coffee-cup-1",
+    name: "Ceramic Coffee Mug Set",
+    price: 45,
+    image: "/images/coffee-cup-1.jpg",
+    rating: 4.6,
+    reviews: 1543,
+  },
+  {
+    id: "coffee-cup-2",
+    name: "Espresso Cup Collection",
+    price: 35,
+    image: "/images/coffee-cup-2.jpg",
+    rating: 4.7,
+    reviews: 2156,
+  },
+  {
+    id: "coffee-cup-3",
+    name: "Travel Coffee Tumbler",
+    price: 28,
+    image: "/images/coffee-cup-3.jpg",
+    rating: 4.5,
+    reviews: 987,
+  },
+]
+
 export default function ProductPage() {
-  const { cart, addToCart, cartTotal } = useCart()
-  const [showAddToCartModal, setShowAddToCartModal] = useState(false)
-  const [lastAddedProduct, setLastAddedProduct] = useState<Product | null>(null)
-  const [modalAddedProducts, setModalAddedProducts] = useState<Product[]>([])
-
-  // State to hold fetched product data
   const [mainProduct, setMainProduct] = useState<Product | null>(null)
-  const [bundles, setBundles] = useState<Bundle[]>([])
-  const [isLoadingProductData, setIsLoadingProductData] = useState(true)
+  const [bundle, setBundle] = useState<Bundle | null>(null)
+  const [selectedImage, setSelectedImage] = useState(0)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [cartItems, setCartItems] = useState<Product[]>([])
+  const [bundleItems, setBundleItems] = useState<Product[]>([])
+  const [isEditMode, setIsEditMode] = useState(false)
+  const [editedProduct, setEditedProduct] = useState<Product | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const { addToCart } = useCart()
 
-  // Fetch product data on component mount
   useEffect(() => {
-    const fetchProductData = async () => {
-      setIsLoadingProductData(true)
-      const { mainProduct: fetchedMainProduct, bundle: fetchedBundle } = await getInitialProductData()
-      setMainProduct(fetchedMainProduct)
-      setBundles([fetchedBundle]) // Assuming only one bundle for now
-      setIsLoadingProductData(false)
+    async function loadProductData() {
+      try {
+        const data = await getInitialProductData()
+        setMainProduct(data.mainProduct)
+        setBundle(data.bundle)
+        setEditedProduct(data.mainProduct)
+      } catch (error) {
+        console.error("Failed to load product data:", error)
+      } finally {
+        setIsLoading(false)
+      }
     }
-    fetchProductData()
+
+    loadProductData()
   }, [])
 
-  // Static data for recommended and cross-sell products (can also be fetched from backend)
-  const recommendedProducts: Product[] = [
-    {
-      id: "speaker",
-      name: "Bluetooth Speaker",
-      price: 129,
-      image: "/placeholder.svg?height=300&width=300",
-      rating: 4.6,
-      reviews: 1543,
-    },
-    {
-      id: "earbuds",
-      name: "Wireless Earbuds",
-      price: 179,
-      image: "/placeholder.svg?height=300&width=300",
-      rating: 4.7,
-      reviews: 2156,
-    },
-    {
-      id: "soundbar",
-      name: "Smart Soundbar",
-      price: 249,
-      image: "/placeholder.svg?height=300&width=300",
-      rating: 4.5,
-      reviews: 876,
-    },
-    {
-      id: "microphone",
-      name: "USB Microphone",
-      price: 89,
-      image: "/placeholder.svg?height=300&width=300",
-      rating: 4.4,
-      reviews: 654,
-    },
-  ]
+  const handleSaveEdit = async () => {
+    if (!editedProduct) return
 
-  const crossSellProducts: Product[] = [
-    {
-      id: "warranty",
-      name: "2-Year Extended Warranty",
-      price: 49,
-      image: "/placeholder.svg?height=200&width=200",
-      rating: 4.8,
-      reviews: 234,
-    },
-    {
-      id: "cleaner",
-      name: "Electronics Cleaning Kit",
-      price: 19,
-      image: "/placeholder.svg?height=200&width=200",
-      rating: 4.3,
-      reviews: 567,
-    },
-    {
-      id: "organizer",
-      name: "Cable Organizer Set",
-      price: 25,
-      image: "/placeholder.svg?height=200&width=200",
-      rating: 4.5,
-      reviews: 432,
-    },
-    {
-      id: "powerbank",
-      name: "Portable Power Bank",
-      price: 69,
-      image: "/placeholder.svg?height=200&width=200",
-      rating: 4.6,
-      reviews: 789,
-    },
-  ]
-
-  const freeShippingThreshold = 300
-  const shippingProgress = Math.min((cartTotal / freeShippingThreshold) * 100, 100)
-  const remainingForFreeShipping = Math.max(freeShippingThreshold - cartTotal, 0)
-
-  const handleAddToCart = (product: Product, quantity = 1) => {
-    addToCart(product, quantity)
-    setLastAddedProduct(product)
-    setShowAddToCartModal(true)
-  }
-
-  const handleModalAddToCart = (product: Product, quantity = 1) => {
-    addToCart(product, quantity)
-    setModalAddedProducts((prev) => [...prev, product])
-  }
-
-  const handleModalClose = (open: boolean) => {
-    setShowAddToCartModal(open)
-    if (!open) {
-      setModalAddedProducts([])
+    try {
+      const updatedProduct = await updateProduct(editedProduct.id, editedProduct)
+      setMainProduct(updatedProduct)
+      setIsEditMode(false)
+    } catch (error) {
+      console.error("Failed to update product:", error)
     }
   }
 
-  const addBundleToCart = (bundle: Bundle) => {
-    bundle.products.forEach((product) => {
-      addToCart(product, 1)
-    })
-    setLastAddedProduct(bundle.products[0])
-    setShowAddToCartModal(true)
+  const handleAddToCart = () => {
+    if (!mainProduct) return
+
+    const newItems = [mainProduct, ...cartItems]
+    setCartItems(newItems)
+    setIsModalOpen(true)
+    addToCart(mainProduct)
+  }
+
+  const handleAddBundle = () => {
+    if (!bundle) return
+
+    const newBundleItems = bundle.products.filter((p) => p.id !== mainProduct?.id)
+    setBundleItems(newBundleItems)
+    setCartItems((prev) => [...prev, ...newBundleItems])
+    addToCart(...newBundleItems)
+  }
+
+  const handleAddRecommended = (product: Product) => {
+    setCartItems((prev) => [...prev, product])
+    addToCart(product)
+  }
+
+  const removeFromCart = (productId: string) => {
+    setCartItems((prev) => prev.filter((item) => item.id !== productId))
+    setBundleItems((prev) => prev.filter((item) => item.id !== productId))
   }
 
   const renderStars = (rating: number) => {
@@ -165,336 +137,398 @@ export default function ProductPage() {
     ))
   }
 
-  const availableCrossSellProducts = crossSellProducts.filter(
-    (product) => !modalAddedProducts.some((added) => added.id === product.id),
-  )
+  const cartTotal = cartItems.reduce((sum, item) => sum + item.price, 0)
+  const shippingThreshold = 300
+  const shippingProgress = Math.min((cartTotal / shippingThreshold) * 100, 100)
+  const remainingForFreeShipping = Math.max(shippingThreshold - cartTotal, 0)
 
-  if (isLoadingProductData || !mainProduct || bundles.length === 0) {
+  const crossSellProducts = recommendedProducts
+    .filter(
+      (product) =>
+        !cartItems.some((item) => item.id === product.id) && !bundleItems.some((item) => item.id === product.id),
+    )
+    .slice(0, 3)
+
+  if (isLoading) {
     return (
-      <div className="flex justify-center items-center min-h-[calc(100vh-64px)]">
-        <Loader2 className="h-10 w-10 animate-spin text-gray-500" />
-        <span className="sr-only">Loading product data...</span>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading product...</p>
+        </div>
       </div>
     )
   }
 
-  const currentBundle = bundles[0] // Assuming we only display one bundle
+  if (!mainProduct || !bundle) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-600">Product not found</p>
+        </div>
+      </div>
+    )
+  }
+
+  const productImages = [
+    mainProduct.image,
+    "/images/coffee-beans.jpg",
+    "/images/coffee-blender.jpg",
+    "/images/coffee-cup-1.jpg",
+  ]
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
-      {/* Breadcrumb */}
-      <div className="mb-8">
-        <Link href="/" className="flex items-center text-gray-600 hover:text-gray-900 transition-colors">
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to Home
-        </Link>
-      </div>
-
-      {/* Free Shipping Progress Bar */}
-      {cartTotal > 0 && (
-        <div className="fixed top-16 left-0 right-0 bg-white border-b shadow-sm z-40 p-4">
-          <div className="max-w-7xl mx-auto">
-            {remainingForFreeShipping > 0 ? (
-              <div className="text-center">
-                <p className="text-sm text-gray-600 mb-2">
-                  Add <span className="font-semibold text-green-600">${remainingForFreeShipping}</span> more for free
-                  shipping!
-                </p>
-                <Progress value={shippingProgress} className="h-2" />
-              </div>
-            ) : (
-              <div className="text-center text-green-600 flex items-center justify-center gap-2">
-                <Truck className="w-4 h-4" />
-                <span className="font-semibold">Congratulations! Free shipping applied</span>
-                <Check className="w-4 h-4" />
-              </div>
-            )}
+    <div className="min-h-screen bg-white">
+      <div className="max-w-6xl mx-auto px-4 py-8">
+        <div className="grid lg:grid-cols-2 gap-12">
+          {/* Product Images */}
+          <div className="space-y-4">
+            <div className="aspect-square rounded-lg overflow-hidden bg-gray-100">
+              <Image
+                src={productImages[selectedImage] || "/placeholder.svg"}
+                alt={mainProduct.name}
+                width={500}
+                height={500}
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div className="grid grid-cols-4 gap-3">
+              {productImages.map((image, index) => (
+                <button
+                  key={index}
+                  onClick={() => setSelectedImage(index)}
+                  className={`aspect-square rounded-lg overflow-hidden border-2 ${
+                    selectedImage === index ? "border-orange-600" : "border-gray-200"
+                  }`}
+                >
+                  <Image
+                    src={image || "/placeholder.svg"}
+                    alt={`Product view ${index + 1}`}
+                    width={120}
+                    height={120}
+                    className="w-full h-full object-cover"
+                  />
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
-      )}
 
-      <div className={`grid lg:grid-cols-2 gap-12 ${cartTotal > 0 ? "mt-20" : ""}`}>
-        {/* Product Images */}
-        <div className="space-y-4">
-          <div className="aspect-square rounded-lg overflow-hidden bg-gray-100">
-            <Image
-              src={mainProduct.image || "/placeholder.svg"}
-              alt={mainProduct.name}
-              width={600}
-              height={600}
-              className="w-full h-full object-cover"
-            />
-          </div>
-          <div className="grid grid-cols-4 gap-4">
-            {[1, 2, 3, 4].map((i) => (
-              <div
-                key={i}
-                className="aspect-square rounded-lg overflow-hidden bg-gray-100 cursor-pointer hover:opacity-80"
+          {/* Product Details */}
+          <div className="space-y-6">
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                {isEditMode ? (
+                  <div className="space-y-3">
+                    <Label htmlFor="product-name">Product Name</Label>
+                    <Input
+                      id="product-name"
+                      value={editedProduct?.name || ""}
+                      onChange={(e) => setEditedProduct((prev) => (prev ? { ...prev, name: e.target.value } : null))}
+                      className="text-2xl font-bold"
+                    />
+                  </div>
+                ) : (
+                  <h1 className="text-3xl font-bold text-gray-900">{mainProduct.name}</h1>
+                )}
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  if (isEditMode) {
+                    handleSaveEdit()
+                  } else {
+                    setIsEditMode(true)
+                  }
+                }}
+                className="ml-4"
               >
-                <Image
-                  src={`/placeholder.svg?height=150&width=150`}
-                  alt={`Product view ${i}`}
-                  width={150}
-                  height={150}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            ))}
-          </div>
-        </div>
+                {isEditMode ? <Save className="w-4 h-4" /> : <Edit2 className="w-4 h-4" />}
+              </Button>
+              {isEditMode && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setIsEditMode(false)
+                    setEditedProduct(mainProduct)
+                  }}
+                  className="ml-2"
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              )}
+            </div>
 
-        {/* Product Details */}
-        <div className="space-y-6">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">{mainProduct.name}</h1>
-            <div className="flex items-center gap-4 mb-4">
+            <div className="flex items-center gap-4">
               <div className="flex items-center gap-1">
                 {renderStars(mainProduct.rating)}
-                <span className="text-sm text-gray-600 ml-1">
+                <span className="text-sm text-gray-600 ml-2">
                   {mainProduct.rating} ({mainProduct.reviews.toLocaleString()} reviews)
                 </span>
               </div>
             </div>
-            <div className="flex items-center gap-3 mb-6">
-              <span className="text-3xl font-bold text-gray-900">${mainProduct.price}</span>
-              {mainProduct.originalPrice && (
-                <span className="text-xl text-gray-500 line-through">${mainProduct.originalPrice}</span>
-              )}
-              {mainProduct.originalPrice && (
-                <Badge variant="destructive">Save ${mainProduct.originalPrice - mainProduct.price}</Badge>
+
+            <div className="space-y-2">
+              {isEditMode ? (
+                <div className="space-y-3">
+                  <Label htmlFor="product-price">Price</Label>
+                  <Input
+                    id="product-price"
+                    type="number"
+                    value={editedProduct?.price || 0}
+                    onChange={(e) =>
+                      setEditedProduct((prev) => (prev ? { ...prev, price: Number(e.target.value) } : null))
+                    }
+                    className="text-xl"
+                  />
+                  <Label htmlFor="original-price">Original Price</Label>
+                  <Input
+                    id="original-price"
+                    type="number"
+                    value={editedProduct?.originalPrice || 0}
+                    onChange={(e) =>
+                      setEditedProduct((prev) => (prev ? { ...prev, originalPrice: Number(e.target.value) } : null))
+                    }
+                    className="text-xl"
+                  />
+                </div>
+              ) : (
+                <div className="flex items-center gap-4">
+                  <span className="text-3xl font-bold text-gray-900">${mainProduct.price}</span>
+                  {mainProduct.originalPrice && (
+                    <>
+                      <span className="text-xl text-gray-500 line-through">${mainProduct.originalPrice}</span>
+                      <Badge variant="destructive">Save ${mainProduct.originalPrice - mainProduct.price}</Badge>
+                    </>
+                  )}
+                </div>
               )}
             </div>
-          </div>
 
-          <div className="prose prose-sm text-gray-600">
-            <p>
-              Experience premium audio quality with our flagship wireless headphones. Featuring advanced noise-canceling
-              technology, 30-hour battery life, and premium comfort padding for all-day wear.
-            </p>
-            <ul className="list-disc list-inside space-y-1 mt-4">
-              <li>Active Noise Cancellation with transparency mode</li>
-              <li>30-hour battery life with quick charge</li>
-              <li>Premium memory foam ear cushions</li>
-              <li>Bluetooth 5.0 with multipoint connection</li>
-              <li>Built-in voice assistant support</li>
-            </ul>
-          </div>
+            <div className="text-sm text-green-600 font-medium">Free shipping for orders above $300</div>
 
-          <div className="flex flex-col gap-4">
-            <Button size="lg" className="w-full text-lg py-3" onClick={() => handleAddToCart(mainProduct)}>
-              <ShoppingCart className="w-5 h-5 mr-2" />
-              Add to Cart - ${mainProduct.price}
-            </Button>
-            <div className="flex items-center gap-2 text-sm text-gray-600 bg-gray-50 p-3 rounded-md">
-              <Truck className="w-5 h-5 text-blue-600" />
-              <span>Free shipping for orders above $300</span>
+            <div className="flex gap-3">
+              <Button
+                onClick={handleAddToCart}
+                className="flex-1 bg-orange-600 hover:bg-orange-700 text-lg py-3"
+                size="lg"
+              >
+                <ShoppingCart className="w-5 h-5 mr-2" />
+                Add to Cart - ${mainProduct.price}
+              </Button>
+              <Button variant="outline" size="lg" className="px-4 bg-transparent">
+                <Heart className="w-5 h-5" />
+              </Button>
+              <Button variant="outline" size="lg" className="px-4 bg-transparent">
+                <Share2 className="w-5 h-5" />
+              </Button>
+            </div>
+
+            <div className="space-y-4 pt-6 border-t">
+              <h3 className="text-lg font-semibold">Product Features</h3>
+              <ul className="space-y-2">
+                <li className="flex items-start gap-2">
+                  <Check className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                  <span className="text-gray-700">Traditional Italian stovetop brewing method</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <Check className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                  <span className="text-gray-700">High-grade aluminum construction</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <Check className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                  <span className="text-gray-700">Ergonomic heat-resistant handle</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <Check className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                  <span className="text-gray-700">Compatible with all stovetop types</span>
+                </li>
+              </ul>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Bundle Section */}
-      <div className="mt-16">
-        <Card className="p-8 bg-orange-50 border-orange-200">
-          <div className="mb-6">
+        {/* Bundle Section */}
+        <div className="mt-16">
+          <Card className="p-6 bg-orange-50 border border-orange-200">
             <div className="flex items-center gap-2 mb-2">
-              <div className="w-6 h-6 bg-orange-600 rounded flex items-center justify-center">
-                <ShoppingCart className="w-4 h-4 text-white" />
-              </div>
-              <h2 className="text-2xl font-bold text-orange-800">Frequently Bought Together</h2>
+              <ShoppingCart className="w-5 h-5 text-orange-600" />
+              <h2 className="text-xl font-bold text-gray-900">Frequently Bought Together</h2>
             </div>
-            <p className="text-gray-600">Customers who bought this item also bought</p>
-          </div>
+            <p className="text-gray-600 mb-6">Customers who bought this item also bought</p>
 
-          {/* Products Row */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            {currentBundle.products.map((product, index) => (
-              <div key={product.id} className="text-center">
-                <div className="aspect-square rounded-lg overflow-hidden bg-white mb-4 p-4">
-                  <Image
-                    src={product.image || "/placeholder.svg"}
-                    alt={product.name}
-                    width={200}
-                    height={200}
-                    className="w-full h-full object-cover rounded-lg"
-                  />
-                </div>
-                <h3 className="font-semibold text-sm mb-2">{product.name}</h3>
-                <p className="text-2xl font-bold text-green-600">${product.price}</p>
-                {index < currentBundle.products.length - 1 && (
-                  <div className="mt-2">
-                    <Plus className="w-6 h-6 text-gray-400 mx-auto" />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+              {bundle.products.map((product, index) => (
+                <div key={product.id} className="text-center">
+                  <div className="aspect-square rounded-lg overflow-hidden bg-white mb-4 border">
+                    <Image
+                      src={product.image || "/placeholder.svg"}
+                      alt={product.name}
+                      width={200}
+                      height={200}
+                      className="w-full h-full object-cover"
+                    />
                   </div>
-                )}
-              </div>
-            ))}
-          </div>
+                  <h3 className="font-medium text-gray-900 mb-2">{product.name}</h3>
+                  <div className="text-2xl font-bold text-green-600 mb-1">${product.price}</div>
+                  <div className="text-gray-400 text-lg">+</div>
+                </div>
+              ))}
+            </div>
 
-          {/* Bundle Pricing */}
-          <div className="border-t border-orange-200 pt-6">
             <div className="flex items-center justify-between mb-4">
-              <span className="text-xl font-semibold text-gray-900">Bundle Price:</span>
-              <div className="text-right">
-                <span className="text-lg text-gray-500 line-through mr-3">
-                  ${currentBundle.originalTotal.toFixed(2)}
-                </span>
-                <span className="text-3xl font-bold text-green-600">${currentBundle.bundlePrice.toFixed(2)}</span>
+              <span className="text-lg font-semibold text-gray-900">Bundle Price:</span>
+              <div className="flex items-center gap-3">
+                <span className="text-gray-500 line-through text-lg">${bundle.originalTotal}</span>
+                <span className="text-3xl font-bold text-green-600">${bundle.bundlePrice}</span>
               </div>
             </div>
 
-            <div className="bg-green-100 rounded-lg p-3 mb-6">
-              <p className="text-green-800 font-semibold text-center">
-                Save {((currentBundle.savings / currentBundle.originalTotal) * 100).toFixed(0)}% when bought together!
-                You save ${currentBundle.savings.toFixed(2)}
+            <div className="bg-green-100 border border-green-200 rounded-lg p-4 mb-6 text-center">
+              <p className="text-green-800 font-medium">
+                Save {Math.round((bundle.savings / bundle.originalTotal) * 100)}% when bought together! You save $
+                {bundle.savings}
               </p>
             </div>
 
             <Button
+              onClick={handleAddBundle}
+              className="w-full bg-orange-600 hover:bg-orange-700 text-white text-lg py-4 rounded-lg"
               size="lg"
-              className="w-full bg-orange-600 hover:bg-orange-700 text-white text-lg py-4"
-              onClick={() => addBundleToCart(currentBundle)}
             >
-              Add All {currentBundle.products.length} Items to Cart
+              Add All 3 Items to Cart
             </Button>
-          </div>
-        </Card>
-      </div>
+          </Card>
+        </div>
 
-      {/* Recommended Products */}
-      <div className="mt-16">
-        <h2 className="text-2xl font-bold text-gray-900 mb-8">You Might Also Like</h2>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {recommendedProducts.map((product) => (
-            <Card key={product.id} className="group cursor-pointer hover:shadow-lg transition-shadow">
-              <CardContent className="p-4">
-                <div className="aspect-square rounded-lg overflow-hidden bg-gray-100 mb-4">
-                  <Image
-                    src={product.image || "/placeholder.svg"}
-                    alt={product.name}
-                    width={300}
-                    height={300}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                  />
-                </div>
-                <h3 className="font-semibold text-sm mb-2">{product.name}</h3>
-                <div className="flex items-center gap-1 mb-2">
-                  {renderStars(product.rating)}
-                  <span className="text-xs text-gray-600 ml-1">({product.reviews})</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="font-bold">${product.price}</span>
-                  <Button size="sm" onClick={() => handleAddToCart(product)}>
-                    Add to Cart
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+        {/* Recommended Products */}
+        <div className="mt-16">
+          <h2 className="text-2xl font-bold text-gray-900 mb-8 text-center">Complete Your Coffee Experience</h2>
+          <div className="grid md:grid-cols-3 gap-6">
+            {recommendedProducts.map((product) => (
+              <Card key={product.id} className="group hover:shadow-lg transition-shadow">
+                <CardContent className="p-6">
+                  <div className="aspect-square rounded-lg overflow-hidden bg-gray-100 mb-4">
+                    <Image
+                      src={product.image || "/placeholder.svg"}
+                      alt={product.name}
+                      width={240}
+                      height={240}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                  </div>
+                  <h3 className="font-semibold text-lg text-gray-900 mb-2">{product.name}</h3>
+                  <div className="flex items-center gap-1 mb-3">
+                    {renderStars(product.rating)}
+                    <span className="text-sm text-gray-600 ml-1">
+                      {product.rating} ({product.reviews})
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xl font-bold text-gray-900">${product.price}</span>
+                    <Button
+                      onClick={() => handleAddRecommended(product)}
+                      size="sm"
+                      className="bg-orange-600 hover:bg-orange-700"
+                    >
+                      Add to Cart
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </div>
       </div>
 
       {/* Add to Cart Modal */}
-      <Dialog open={showAddToCartModal} onOpenChange={handleModalClose}>
-        <DialogContent className="max-w-2xl">
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Check className="w-5 h-5 text-green-600" />
-              Added to Cart!
-            </DialogTitle>
+            <DialogTitle className="text-xl font-bold text-green-600">Added to Cart!</DialogTitle>
           </DialogHeader>
-
-          {lastAddedProduct && (
-            <div className="space-y-6">
-              {/* Show all added products in this session */}
-              <div className="space-y-3">
-                {/* Original product */}
-                <div className="flex items-center gap-4 p-4 bg-green-50 rounded-lg">
-                  <Image
-                    src={lastAddedProduct.image || "/placeholder.svg"}
-                    alt={lastAddedProduct.name}
-                    width={80}
-                    height={80}
-                    className="rounded-lg"
-                  />
-                  <div>
-                    <h3 className="font-semibold">{lastAddedProduct.name}</h3>
-                    <p className="text-green-600 font-semibold">${lastAddedProduct.price}</p>
-                  </div>
-                </div>
-
-                {/* Additional products added during this modal session */}
-                {modalAddedProducts.map((product) => (
-                  <div key={product.id} className="flex items-center gap-4 p-4 bg-blue-50 rounded-lg">
-                    <Image
-                      src={product.image || "/placeholder.svg"}
-                      alt={product.name}
-                      width={80}
-                      height={80}
-                      className="rounded-lg"
-                    />
-                    <div>
-                      <h3 className="font-semibold">{product.name}</h3>
-                      <p className="text-blue-600 font-semibold">${product.price}</p>
-                    </div>
-                    <Check className="w-5 h-5 text-blue-600 ml-auto" />
-                  </div>
-                ))}
+          <div className="space-y-4">
+            {/* Shipping Progress */}
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm">
+                <span>Free shipping progress</span>
+                <span className="font-medium">${cartTotal} / $300</span>
               </div>
-
-              {/* Show remaining cross-sell products */}
-              {availableCrossSellProducts.length > 0 && (
-                <div>
-                  <h3 className="font-semibold text-lg mb-4">People Also Buy These Together</h3>
-                  <div className="space-y-3">
-                    {availableCrossSellProducts.slice(0, 3).map((product) => (
-                      <div
-                        key={product.id}
-                        className="flex items-center gap-4 p-4 border rounded-lg hover:bg-gray-50 transition-colors"
-                      >
-                        <Image
-                          src={product.image || "/placeholder.svg"}
-                          alt={product.name}
-                          width={60}
-                          height={60}
-                          className="rounded-lg"
-                        />
-                        <div className="flex-1">
-                          <p className="font-medium">{product.name}</p>
-                          <p className="text-gray-600">${product.price}</p>
-                        </div>
-                        <Button
-                          variant="outline"
-                          onClick={() => handleModalAddToCart(product)}
-                          className="bg-transparent"
-                        >
-                          Add
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+              <Progress value={shippingProgress} className="h-2" />
+              {remainingForFreeShipping > 0 ? (
+                <p className="text-sm text-gray-600">Add ${remainingForFreeShipping} more for free shipping!</p>
+              ) : (
+                <p className="text-sm text-green-600 font-medium">🎉 You qualify for free shipping!</p>
               )}
-
-              {/* Show message when all cross-sell products are added */}
-              {availableCrossSellProducts.length === 0 && (
-                <div className="text-center py-8 text-gray-500">
-                  <Check className="w-12 h-12 mx-auto mb-2 text-green-600" />
-                  <p>Great choices! You've added all our recommended products.</p>
-                </div>
-              )}
-
-              <div className="flex gap-3">
-                <Button variant="outline" className="flex-1 bg-transparent" onClick={() => handleModalClose(false)}>
-                  Continue Shopping
-                </Button>
-                <Link href="/checkout" className="flex-1">
-                  <Button className="w-full">
-                    View Cart ({cart.reduce((sum, item) => sum + item.quantity, 0) + modalAddedProducts.length})
-                  </Button>
-                </Link>
-              </div>
             </div>
-          )}
+
+            {/* Cart Items */}
+            <div className="space-y-3">
+              <h4 className="font-medium">Items in your cart:</h4>
+              {cartItems.map((item) => (
+                <div key={item.id} className="flex items-center gap-3 p-2 bg-gray-50 rounded">
+                  <Image
+                    src={item.image || "/placeholder.svg"}
+                    alt={item.name}
+                    width={40}
+                    height={40}
+                    className="rounded object-cover"
+                  />
+                  <div className="flex-1">
+                    <p className="font-medium text-sm">{item.name}</p>
+                    <p className="text-sm text-gray-600">${item.price}</p>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => removeFromCart(item.id)}
+                    className="text-red-600 hover:text-red-700"
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+
+            {/* Cross-sell Products */}
+            {crossSellProducts.length > 0 && (
+              <div className="space-y-3 border-t pt-4">
+                <h4 className="font-medium">You might also like:</h4>
+                <div className="space-y-2">
+                  {crossSellProducts.map((product) => (
+                    <div key={product.id} className="flex items-center gap-3 p-2 border rounded">
+                      <Image
+                        src={product.image || "/placeholder.svg"}
+                        alt={product.name}
+                        width={40}
+                        height={40}
+                        className="rounded object-cover"
+                      />
+                      <div className="flex-1">
+                        <p className="font-medium text-sm">{product.name}</p>
+                        <p className="text-sm text-gray-600">${product.price}</p>
+                      </div>
+                      <Button
+                        size="sm"
+                        onClick={() => handleAddRecommended(product)}
+                        className="bg-orange-600 hover:bg-orange-700"
+                      >
+                        Add
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="flex gap-3 pt-4">
+              <Button variant="outline" onClick={() => setIsModalOpen(false)} className="flex-1">
+                Continue Shopping
+              </Button>
+              <Button className="flex-1 bg-orange-600 hover:bg-orange-700">View Cart (${cartTotal})</Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
