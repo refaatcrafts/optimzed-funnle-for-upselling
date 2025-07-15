@@ -5,13 +5,14 @@ import "./globals.css"
 import { Navigation } from "@/components/navigation"
 import { CartProvider } from "@/components/cart-context"
 import { Toaster } from "@/components/ui/toaster"
+import { APP_CONFIG } from "@/lib/constants/app"
 
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Coffee Shop - Premium Italian Coffee Products",
-  description: "Discover authentic Italian coffee products including mocha pots, coffee blenders, and premium beans.",
-    generator: 'v0.dev'
+  title: `${APP_CONFIG.name} - Premium Italian Coffee Products`,
+  description: APP_CONFIG.tagline,
+  generator: 'v0.dev'
 }
 
 export default function RootLayout({

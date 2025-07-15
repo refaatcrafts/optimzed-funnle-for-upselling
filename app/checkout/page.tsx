@@ -48,7 +48,7 @@ export default function CheckoutPage() {
     (sum, item) => sum + ((item.originalPrice || item.price) - item.price) * item.quantity,
     0,
   )
-  const shipping = subtotal >= 300 ? 0 : 15
+  const shipping = subtotal >= 400 ? 0 : 15
   const tax = Math.round(subtotal * 0.08 * 100) / 100
   const total = subtotal + shipping + tax
 
@@ -247,7 +247,7 @@ export default function CheckoutPage() {
                     <span>Tax</span>
                     <span>${tax}</span>
                   </div>
-                  {subtotal >= 300 && (
+                  {subtotal >= 600 && (
                     <div className="flex items-center gap-2 text-green-600 text-sm">
                       <Check className="w-4 h-4" />
                       <span>Free shipping applied!</span>

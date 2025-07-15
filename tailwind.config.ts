@@ -1,13 +1,12 @@
 import type { Config } from "tailwindcss";
 
-// all in fixtures is set to tailwind v3 as interims solutions
-
 const config: Config = {
     darkMode: ["class"],
     content: [
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./lib/**/*.{js,ts,jsx,tsx,mdx}",
     "*.{js,ts,jsx,tsx,mdx}"
   ],
   theme: {
@@ -62,6 +61,33 @@ const config: Config = {
   				'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
   				border: 'hsl(var(--sidebar-border))',
   				ring: 'hsl(var(--sidebar-ring))'
+  			},
+  			// Coffee shop brand colors
+  			brand: {
+  				orange: {
+  					50: '#fff7ed',
+  					100: '#ffedd5',
+  					200: '#fed7aa',
+  					300: '#fdba74',
+  					400: '#fb923c',
+  					500: '#f97316',
+  					600: '#ea580c',
+  					700: '#c2410c',
+  					800: '#9a3412',
+  					900: '#7c2d12',
+  				},
+  				amber: {
+  					50: '#fffbeb',
+  					100: '#fef3c7',
+  					200: '#fde68a',
+  					300: '#fcd34d',
+  					400: '#fbbf24',
+  					500: '#f59e0b',
+  					600: '#d97706',
+  					700: '#b45309',
+  					800: '#92400e',
+  					900: '#78350f',
+  				},
   			}
   		},
   		borderRadius: {
@@ -85,11 +111,26 @@ const config: Config = {
   				to: {
   					height: '0'
   				}
+  			},
+  			'fade-in': {
+  				from: {
+  					opacity: '0',
+  					transform: 'translateY(10px)'
+  				},
+  				to: {
+  					opacity: '1',
+  					transform: 'translateY(0)'
+  				}
   			}
   		},
   		animation: {
   			'accordion-down': 'accordion-down 0.2s ease-out',
-  			'accordion-up': 'accordion-up 0.2s ease-out'
+  			'accordion-up': 'accordion-up 0.2s ease-out',
+  			'fade-in': 'fade-in 0.3s ease-out'
+  		},
+  		spacing: {
+  			'section': '5rem',
+  			'component': '2rem',
   		}
   	}
   },
