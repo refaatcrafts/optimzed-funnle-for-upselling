@@ -56,11 +56,24 @@ export default function CheckoutPage() {
     e.preventDefault()
     setIsProcessing(true)
 
-    // Simulate payment processing
-    await new Promise((resolve) => setTimeout(resolve, 2000))
+    try {
+      // Simulate payment processing
+      await new Promise((resolve) => setTimeout(resolve, 2000))
 
-    setIsProcessing(false)
-    setOrderComplete(true)
+      // Generate order ID
+      const orderId = `CF-${Date.now()}`
+      
+      // Get customer email from form
+      const formData = new FormData(e.target as HTMLFormElement)
+      const email = formData.get('email') as string
+
+      // Redirect to upsell page with order data
+      window.location.href = `/upsell?orderId=${orderId}&total=${total}&email=${encodeURIComponent(email)}`
+      
+    } catch (error) {
+      console.error('Payment failed:', error)
+      setIsProcessing(false)
+    }
   }
 
   if (orderComplete) {
@@ -125,7 +138,7 @@ export default function CheckoutPage() {
                 </div>
                 <div>
                   <Label htmlFor="email">Email</Label>
-                  <Input id="email" type="email" placeholder="john@example.com" />
+                  <Input id="email" name="email" type="email" placeholder="john@example.com" required />
                 </div>
                 <div>
                   <Label htmlFor="address">Address</Label>
