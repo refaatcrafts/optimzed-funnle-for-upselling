@@ -58,15 +58,16 @@ export class ConfigurationManager {
     // Try to load from cache first
     const cachedConfig = this.getConfigFromCache()
 
-    // If we don't have cached config or it's the default, try to trigger async load
-    if (!cachedConfig || JSON.stringify(cachedConfig.upselling) === JSON.stringify(DEFAULT_ADMIN_CONFIG.upselling)) {
-      // Trigger async load in background (don't wait for it)
-      this.getConfig().then(config => {
-        this.config = config
-      }).catch(error => {
-        console.warn('Background config load failed:', error)
-      })
-    }
+    // Always trigger async load in background to keep config fresh
+    this.getConfig().then(config => {
+      this.config = config
+      // Trigger a custom event to notify components of config update
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('configUpdated', { detail: config }))
+      }
+    }).catch(error => {
+      console.warn('Background config load failed:', error)
+    })
 
     return cachedConfig
   }
