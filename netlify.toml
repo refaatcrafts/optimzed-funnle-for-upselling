@@ -1,0 +1,29 @@
+[build]
+command = "npm run build"
+publish = ".next"
+
+[build.environment]
+NODE_VERSION = "18"
+
+[functions]
+directory = ".netlify/functions"
+node_bundler = "esbuild"
+
+# Redirect all API routes to Next.js
+[[redirects]]
+from = "/api/*"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+# Handle client-side routing
+[[redirects]]
+from = "/*"
+to = "/index.html"
+status = 200
+conditions = { Role = ["admin"] }
+
+# Default redirect for SPA
+[[redirects]]
+from = "/*"
+to = "/index.html"
+status = 200

@@ -46,6 +46,21 @@ export class StorageAdapterFactory {
     } catch (error) {
       console.error(`Failed to create storage adapter for platform ${platform}:`, error)
       
+      // Try fallback strategies based on platform
+      if (platform === PlatformType.SQLITE) {
+        console.log('SQLite failed, trying file-based storage fallback...')
+        try {
+          const { FileAdapter } = await import('./adapters/file-adapter')
+          const fallbackAdapter = new FileAdapter()
+          await fallbackAdapter.initialize()
+          this.instance = fallbackAdapter
+          console.log('Successfully initialized file-based storage fallback')
+          return fallbackAdapter
+        } catch (fallbackError) {
+          console.error('File adapter fallback also failed:', fallbackError)
+        }
+      }
+      
       // If SQLite fails and we're likely on a serverless platform, try Netlify Blobs as fallback
       if (platform === PlatformType.SQLITE && this.isLikelyServerless()) {
         console.log('SQLite failed on serverless platform, trying Netlify Blobs fallback...')

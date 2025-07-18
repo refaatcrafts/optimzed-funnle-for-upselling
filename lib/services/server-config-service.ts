@@ -31,7 +31,13 @@ export class ServerConfigService {
     }
 
     const adapter = await this.getAdapter()
-    return await adapter.saveConfig(config)
+    const success = await adapter.saveConfig(config)
+    
+    if (success && userAgent) {
+      await this.logConfigChange('UPDATE', config, userAgent)
+    }
+    
+    return success
   }
 
   async resetToDefaults(): Promise<AdminConfig> {
@@ -85,11 +91,11 @@ export class ServerConfigService {
   private getDefaultConfig(): AdminConfig {
     return {
       upselling: {
-        frequentlyBoughtTogether: false,
-        youMightAlsoLike: false,
-        freeShippingProgressBar: false,
-        postCartUpsellOffers: false,
-        crossSellRecommendations: false
+        frequentlyBoughtTogether: true,
+        youMightAlsoLike: true,
+        freeShippingProgressBar: true,
+        postCartUpsellOffers: true,
+        crossSellRecommendations: true
       },
       lastUpdated: new Date().toISOString()
     }

@@ -19,14 +19,20 @@ export async function GET() {
   } catch (error) {
     console.error('GET /api/config error:', error)
     
-    // Return default config if there's an error
-    const { DEFAULT_ADMIN_CONFIG } = await import('@/lib/constants/admin')
+    // Return default config if there's an error (with all features enabled)
+    const defaultConfig = {
+      upselling: {
+        frequentlyBoughtTogether: true,
+        youMightAlsoLike: true,
+        freeShippingProgressBar: true,
+        postCartUpsellOffers: true,
+        crossSellRecommendations: true
+      }
+    }
     
     return NextResponse.json({
       success: true,
-      data: {
-        upselling: DEFAULT_ADMIN_CONFIG.upselling
-      },
+      data: defaultConfig,
       timestamp: new Date().toISOString()
     })
   }

@@ -26,6 +26,12 @@ export class NetlifyBlobsAdapter extends StorageAdapter {
   async initialize(): Promise<void> {
     console.log('NetlifyBlobsAdapter: Starting initialization...')
     console.log('NetlifyBlobsAdapter: Store name:', this.storeName)
+    console.log('NetlifyBlobsAdapter: Environment check:', {
+      NETLIFY: process.env.NETLIFY,
+      NETLIFY_DEV: process.env.NETLIFY_DEV,
+      CONTEXT: process.env.CONTEXT,
+      NODE_ENV: process.env.NODE_ENV
+    })
     
     try {
       // Dynamic import to avoid issues when not on Netlify
@@ -36,14 +42,21 @@ export class NetlifyBlobsAdapter extends StorageAdapter {
       this.store = getStore(this.storeName)
       
       console.log('NetlifyBlobsAdapter: Testing connection...')
-      // Test connection
-      await this.store.list({ limit: 1 })
+      // Test connection with more detailed error handling
+      try {
+        await this.store.list({ limit: 1 })
+        console.log('NetlifyBlobsAdapter: Connection test successful!')
+      } catch (connectionError: any) {
+        console.error('NetlifyBlobsAdapter: Connection test failed:', connectionError)
+        // Don't fail initialization on connection test - Netlify Blobs might not be ready yet
+        console.warn('NetlifyBlobsAdapter: Continuing despite connection test failure')
+      }
       
       console.log('NetlifyBlobsAdapter: Initialization successful!')
-    } catch (error) {
+    } catch (error: any) {
       console.error('NetlifyBlobsAdapter: Initialization failed:', error)
       
-      if (error.message?.includes('not found') || error.message?.includes('module')) {
+      if (error?.message?.includes('not found') || error?.message?.includes('module')) {
         throw new ConfigError(
           'Netlify Blobs not available. Make sure @netlify/blobs is installed and you are deploying to Netlify.',
           CONFIG_ERRORS.INITIALIZATION_FAILED,
@@ -117,9 +130,9 @@ export class NetlifyBlobsAdapter extends StorageAdapter {
       console.log('NetlifyBlobsAdapter: Returning config:', config ? 'Valid config' : 'Invalid/null config')
       
       return config
-    } catch (error) {
+    } catch (error: any) {
       console.error('NetlifyBlobsAdapter: Error getting config:', error)
-      if (error.message?.includes('not found')) {
+      if (error?.message?.includes('not found')) {
         return null
       }
       throw ErrorHandler.handleStorageError(error, PlatformType.NETLIFY)
@@ -142,7 +155,7 @@ export class NetlifyBlobsAdapter extends StorageAdapter {
       })
       
       // Get existing blob or create new one
-      let blob: NetlifyConfigBlob
+      let blob: NetlifyConfigBlob | null = null
       
       try {
         const existingData = await this.store.get('config', { type: 'json' })

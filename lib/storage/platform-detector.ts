@@ -1,5 +1,6 @@
 export enum PlatformType {
   NETLIFY = 'netlify',
+  VERCEL = 'vercel',
   SQLITE = 'sqlite'
 }
 
@@ -20,6 +21,8 @@ export class PlatformDetector {
       DEPLOY_PRIME_URL: process.env.DEPLOY_PRIME_URL,
       SITE_ID: process.env.SITE_ID,
       BUILD_ID: process.env.BUILD_ID,
+      VERCEL: process.env.VERCEL,
+      VERCEL_ENV: process.env.VERCEL_ENV,
       NODE_ENV: process.env.NODE_ENV
     })
     
@@ -34,6 +37,12 @@ export class PlatformDetector {
     ) {
       console.log('Detected Netlify platform')
       return PlatformType.NETLIFY
+    }
+    
+    // Check for Vercel environment
+    if (process.env.VERCEL || process.env.VERCEL_ENV) {
+      console.log('Detected Vercel platform')
+      return PlatformType.VERCEL
     }
     
     console.log('Defaulting to SQLite platform')
@@ -51,6 +60,13 @@ export class PlatformDetector {
           name: 'Netlify Blobs',
           supportsFileSystem: false,
           storageType: 'blob'
+        }
+      case PlatformType.VERCEL:
+        return {
+          type: PlatformType.VERCEL,
+          name: 'Vercel KV',
+          supportsFileSystem: false,
+          storageType: 'kv'
         }
       case PlatformType.SQLITE:
       default:

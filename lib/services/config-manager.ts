@@ -400,8 +400,9 @@ export class ConfigurationManager {
     const platform = this.platformInfo
     if (!platform) return
 
-    const warnings = {
+    const warnings: Record<string, string> = {
       netlify: 'Netlify Blobs storage is temporarily unavailable. Using cached configuration.',
+      vercel: 'Vercel KV storage is temporarily unavailable. Using cached configuration.',
       sqlite: 'Database connection failed. Using cached configuration.'
     }
 

@@ -43,11 +43,11 @@ export abstract class StorageAdapter {
   protected getDefaultConfig(): AdminConfig {
     return {
       upselling: {
-        frequentlyBoughtTogether: false,
-        youMightAlsoLike: false,
-        freeShippingProgressBar: false,
-        postCartUpsellOffers: false,
-        crossSellRecommendations: false
+        frequentlyBoughtTogether: true,
+        youMightAlsoLike: true,
+        freeShippingProgressBar: true,
+        postCartUpsellOffers: true,
+        crossSellRecommendations: true
       },
       lastUpdated: new Date().toISOString()
     }
