@@ -45,6 +45,21 @@ export class StorageAdapterFactory {
       return adapter
     } catch (error) {
       console.error(`Failed to create storage adapter for platform ${platform}:`, error)
+      
+      // If SQLite fails and we're likely on a serverless platform, try Netlify Blobs as fallback
+      if (platform === PlatformType.SQLITE && this.isLikelyServerless()) {
+        console.log('SQLite failed on serverless platform, trying Netlify Blobs fallback...')
+        try {
+          const { NetlifyBlobsAdapter } = await import('./adapters/netlify-adapter')
+          const fallbackAdapter = new NetlifyBlobsAdapter()
+          await fallbackAdapter.initialize()
+          this.instance = fallbackAdapter
+          return fallbackAdapter
+        } catch (fallbackError) {
+          console.error('Netlify Blobs fallback also failed:', fallbackError)
+        }
+      }
+      
       throw new ConfigError(
         `Failed to initialize storage adapter for ${platform}`,
         CONFIG_ERRORS.INITIALIZATION_FAILED,
@@ -52,6 +67,22 @@ export class StorageAdapterFactory {
         500
       )
     }
+  }
+
+  private static isLikelyServerless(): boolean {
+    // Check for common serverless environment indicators
+    return !!(
+      process.env.NETLIFY ||
+      process.env.NETLIFY_DEV ||
+      process.env.CONTEXT ||
+      process.env.DEPLOY_PRIME_URL ||
+      process.env.SITE_ID ||
+      process.env.BUILD_ID ||
+      process.env.VERCEL ||
+      process.env.VERCEL_ENV ||
+      process.env.AWS_LAMBDA_FUNCTION_NAME ||
+      process.env.LAMBDA_TASK_ROOT
+    )
   }
 
   static clearCache(): void {

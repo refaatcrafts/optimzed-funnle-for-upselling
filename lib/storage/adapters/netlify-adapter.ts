@@ -24,14 +24,25 @@ export class NetlifyBlobsAdapter extends StorageAdapter {
   }
 
   async initialize(): Promise<void> {
+    console.log('NetlifyBlobsAdapter: Starting initialization...')
+    console.log('NetlifyBlobsAdapter: Store name:', this.storeName)
+    
     try {
       // Dynamic import to avoid issues when not on Netlify
+      console.log('NetlifyBlobsAdapter: Importing @netlify/blobs...')
       const { getStore } = await import('@netlify/blobs')
+      
+      console.log('NetlifyBlobsAdapter: Creating store...')
       this.store = getStore(this.storeName)
       
+      console.log('NetlifyBlobsAdapter: Testing connection...')
       // Test connection
       await this.store.list({ limit: 1 })
+      
+      console.log('NetlifyBlobsAdapter: Initialization successful!')
     } catch (error) {
+      console.error('NetlifyBlobsAdapter: Initialization failed:', error)
+      
       if (error.message?.includes('not found') || error.message?.includes('module')) {
         throw new ConfigError(
           'Netlify Blobs not available. Make sure @netlify/blobs is installed and you are deploying to Netlify.',
