@@ -2,26 +2,32 @@ import { NextRequest, NextResponse } from 'next/server'
 import { AdminConfig } from '@/lib/types/admin'
 import { ServerConfigService } from '@/lib/services/server-config-service'
 import { withAuth, AuthenticatedRequest } from '@/lib/middleware/admin-auth'
+import { ConfigError } from '@/lib/storage/errors'
 
 const configService = new ServerConfigService()
 
 async function getHandler(request: AuthenticatedRequest): Promise<NextResponse> {
   try {
     const config = await configService.getConfig()
+    const platformInfo = await configService.getPlatformInfo()
     
     return NextResponse.json({
       success: true,
       data: config,
+      platform: platformInfo,
       timestamp: new Date().toISOString()
     })
   } catch (error) {
     console.error('GET /api/admin/config error:', error)
     
+    const statusCode = error instanceof ConfigError ? error.statusCode : 500
+    const errorMessage = error instanceof ConfigError ? error.message : 'Failed to load configuration'
+    
     return NextResponse.json({
       success: false,
-      error: error instanceof Error ? error.message : 'Failed to load configuration',
+      error: errorMessage,
       timestamp: new Date().toISOString()
-    }, { status: 500 })
+    }, { status: statusCode })
   }
 }
 
@@ -45,12 +51,14 @@ async function putHandler(request: AuthenticatedRequest): Promise<NextResponse> 
     const success = await configService.saveConfig(config, userAgent)
     
     if (success) {
-      // Return the saved configuration
+      // Return the saved configuration with platform info
       const savedConfig = await configService.getConfig()
+      const platformInfo = await configService.getPlatformInfo()
       
       return NextResponse.json({
         success: true,
         data: savedConfig,
+        platform: platformInfo,
         timestamp: new Date().toISOString()
       })
     } else {
@@ -63,11 +71,14 @@ async function putHandler(request: AuthenticatedRequest): Promise<NextResponse> 
   } catch (error) {
     console.error('PUT /api/admin/config error:', error)
     
+    const statusCode = error instanceof ConfigError ? error.statusCode : 500
+    const errorMessage = error instanceof ConfigError ? error.message : 'Failed to save configuration'
+    
     return NextResponse.json({
       success: false,
-      error: error instanceof Error ? error.message : 'Failed to save configuration',
+      error: errorMessage,
       timestamp: new Date().toISOString()
-    }, { status: 500 })
+    }, { status: statusCode })
   }
 }
 

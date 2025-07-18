@@ -3,10 +3,13 @@ import { DEFAULT_ADMIN_CONFIG, SESSION_CONFIG } from '@/lib/constants/admin'
 import { RetryManager, createConfigError, ConfigError, ERROR_CODES } from '@/lib/utils/errors'
 import { AdminAuthService } from '@/lib/services/admin-auth'
 
+import { PlatformInfo } from '@/lib/storage/platform-detector'
+
 interface ConfigApiResponse {
   success: boolean
   data?: AdminConfig
   error?: string
+  platform?: PlatformInfo
   timestamp: string
 }
 
@@ -14,6 +17,7 @@ export class ConfigurationManager {
   private static config: AdminConfig | null = null
   private static isServerAvailable: boolean = true
   private static lastServerCheck: number = 0
+  private static platformInfo: PlatformInfo | null = null
   private static readonly SERVER_CHECK_INTERVAL = 30000 // 30 seconds
 
   // Primary methods (now server-first)
@@ -31,6 +35,10 @@ export class ConfigurationManager {
       const configError = createConfigError(error, 'getConfig')
       console.warn('Server unavailable, using cache:', configError.message)
       this.isServerAvailable = false
+      
+      // Show platform-specific warning
+      this.showPlatformWarning(error)
+      
       // Fallback to localStorage
       return this.getConfigFromCache()
     }
@@ -351,9 +359,63 @@ export class ConfigurationManager {
     }
   }
 
+  // Platform-aware methods
+  static async getPlatformInfo(): Promise<PlatformInfo | null> {
+    if (this.platformInfo) {
+      return this.platformInfo
+    }
+
+    try {
+      const authHeaders = AdminAuthService.getAuthHeaders()
+      const response = await fetch('/api/admin/platform', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          ...authHeaders,
+        },
+      })
+
+      if (response.ok) {
+        const result = await response.json()
+        if (result.success && result.platform) {
+          this.platformInfo = result.platform
+          return result.platform
+        }
+      }
+    } catch (error) {
+      console.warn('Failed to get platform info:', error)
+    }
+
+    return null
+  }
+
   private static shouldUseCache(): boolean {
     const timeSinceLastCheck = Date.now() - this.lastServerCheck
     return timeSinceLastCheck < this.SERVER_CHECK_INTERVAL
+  }
+
+  static showPlatformWarning(error: any): void {
+    if (typeof window === 'undefined') return
+
+    const platform = this.platformInfo
+    if (!platform) return
+
+    const warnings = {
+      netlify: 'Netlify Blobs storage is temporarily unavailable. Using cached configuration.',
+      sqlite: 'Database connection failed. Using cached configuration.'
+    }
+
+    const message = warnings[platform.type] || 'Server storage unavailable. Using cached configuration.'
+    console.warn(`[${platform.name}] ${message}`, error)
+
+    // You could also show a user-friendly notification here
+    // For example, using a toast notification system
+  }
+
+  static async getConfigWithPlatformInfo(): Promise<{ config: AdminConfig; platform: PlatformInfo | null }> {
+    const config = await this.getConfig()
+    const platform = await this.getPlatformInfo()
+    return { config, platform }
   }
 
   // Migration utility
@@ -377,7 +439,8 @@ export class ConfigurationManager {
       if (this.isValidConfig(config)) {
         const success = await this.saveConfigToServer(config)
         if (success) {
-          console.log('Successfully migrated configuration from localStorage to server')
+          const platform = await this.getPlatformInfo()
+          console.log(`Successfully migrated configuration from localStorage to ${platform?.name || 'server'}`)
         }
       }
     } catch (error) {

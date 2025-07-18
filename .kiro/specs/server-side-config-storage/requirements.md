@@ -32,15 +32,16 @@ This feature will migrate the admin configuration storage from client-side local
 
 ### Requirement 3
 
-**User Story:** As a developer, I want a simple database setup that deploys with the application, so that there are no external database dependencies or complex infrastructure requirements.
+**User Story:** As a developer, I want a simple database setup that works across different deployment platforms including static hosting services like Netlify, so that there are no external database dependencies or complex infrastructure requirements.
 
 #### Acceptance Criteria
 
-1. WHEN the application starts THEN the system SHALL automatically create the SQLite database if it doesn't exist
-2. WHEN the application is deployed THEN the system SHALL include the SQLite database file in the deployment
-3. WHEN database migrations are needed THEN the system SHALL handle schema updates automatically
-4. WHEN the database is corrupted THEN the system SHALL recreate it with default values
-5. WHEN backing up data THEN the system SHALL provide a simple way to export/import configurations
+1. WHEN the application is deployed to static hosting platforms (Netlify, Vercel) THEN the system SHALL use a serverless-compatible storage solution
+2. WHEN the application is deployed to traditional servers THEN the system SHALL support SQLite database storage
+3. WHEN the application starts THEN the system SHALL automatically detect the deployment environment and choose the appropriate storage method
+4. WHEN database migrations are needed THEN the system SHALL handle schema updates automatically for the chosen storage method
+5. WHEN the database is corrupted or unavailable THEN the system SHALL recreate it with default values
+6. WHEN backing up data THEN the system SHALL provide a simple way to export/import configurations regardless of storage method
 
 ### Requirement 4
 
@@ -55,6 +56,18 @@ This feature will migrate the admin configuration storage from client-side local
 5. WHEN configuration conflicts occur THEN the system SHALL resolve them using server data as the source of truth
 
 ### Requirement 5
+
+**User Story:** As a developer deploying to Netlify or similar serverless platforms, I want the configuration storage to work without persistent file system access, so that the application functions correctly in serverless environments.
+
+#### Acceptance Criteria
+
+1. WHEN deployed to Netlify THEN the system SHALL use Netlify Blobs or similar serverless storage for configuration persistence
+2. WHEN deployed to Vercel THEN the system SHALL use Vercel KV or similar edge storage for configuration persistence
+3. WHEN serverless storage is unavailable THEN the system SHALL gracefully fall back to localStorage with appropriate user warnings
+4. WHEN switching between deployment environments THEN the system SHALL provide migration tools to transfer configurations
+5. WHEN serverless storage quotas are exceeded THEN the system SHALL handle errors gracefully and notify administrators
+
+### Requirement 6
 
 **User Story:** As a system administrator, I want audit capabilities and error handling, so that I can track configuration changes and troubleshoot issues effectively.
 

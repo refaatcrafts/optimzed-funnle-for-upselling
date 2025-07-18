@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { ServerConfigService } from '@/lib/services/server-config-service'
-import { getDatabaseInfo } from '@/lib/db/connection'
-import { migrator } from '@/lib/db/migrations'
 import { AdminAuthMiddleware } from '@/lib/middleware/admin-auth'
+import { ConfigError } from '@/lib/storage/errors'
 
 const configService = new ServerConfigService()
 
@@ -12,29 +11,31 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   const isAuthenticated = !!session
   
   try {
-    const dbInfo = await getDatabaseInfo()
-    const healthCheck = await migrator.checkDatabaseHealth()
-    const serverHealth = await configService.checkDatabaseHealth()
+    const platformInfo = await configService.getPlatformInfo()
+    const storageHealth = await configService.checkHealth()
     
-    const isHealthy = dbInfo.connected && healthCheck.healthy && serverHealth
+    // Test basic config operations
+    let configOperational = false
+    try {
+      await configService.getConfig()
+      configOperational = true
+    } catch (error) {
+      console.warn('Config operation test failed:', error)
+    }
+    
+    const isHealthy = storageHealth && configOperational
     
     return NextResponse.json({
       healthy: isHealthy,
-      database: {
-        connected: dbInfo.connected,
-        path: dbInfo.path,
-        size: dbInfo.size,
-        version: healthCheck.version,
-        error: healthCheck.error
+      storage: {
+        platform: platformInfo,
+        healthy: storageHealth,
+        operational: configOperational
       },
       server: {
-        healthy: serverHealth,
+        healthy: isHealthy,
         timestamp: new Date().toISOString(),
         version: process.env.npm_package_version || '1.0.0'
-      },
-      migrations: {
-        current: healthCheck.version,
-        applied: await migrator.getAppliedMigrations()
       }
     }, {
       status: isHealthy ? 200 : 503
@@ -42,10 +43,13 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   } catch (error) {
     console.error('GET /api/admin/health error:', error)
     
+    const statusCode = error instanceof ConfigError ? error.statusCode : 503
+    const errorMessage = error instanceof ConfigError ? error.message : 'Health check failed'
+    
     return NextResponse.json({
       healthy: false,
-      error: error instanceof Error ? error.message : 'Health check failed',
+      error: errorMessage,
       timestamp: new Date().toISOString()
-    }, { status: 503 })
+    }, { status: statusCode })
   }
 }

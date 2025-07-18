@@ -1,99 +1,106 @@
 # Implementation Plan
 
-- [ ] 1. Set up SQLite database infrastructure
-  - Install better-sqlite3 package for SQLite support
-  - Create database connection utilities in lib/db/connection.ts
-  - Implement database schema and migration system
-  - Create data directory structure for SQLite file storage
-  - _Requirements: 3.1, 3.2, 3.3, 3.4_
+- [ ] 1. Create platform detection and storage adapter foundation
+  - Create PlatformDetector class to identify deployment environment (Netlify, Vercel, SQLite)
+  - Define StorageAdapter interface with common methods for all platforms
+  - Implement StorageAdapterFactory to create appropriate adapter based on platform
+  - Add platform-specific error types and error handling utilities
+  - _Requirements: 3.1, 3.3, 5.1_
 
-- [x] 2. Create database schema and migration system
-  - Define admin_config table schema for storing configuration data
-  - Create config_audit table for tracking configuration changes
-  - Implement database migration utilities with version control
-  - Add database initialization and health check functions
-  - _Requirements: 3.1, 3.3, 5.1, 5.5_
+- [ ] 2. Implement Netlify Blobs storage adapter
+  - Install @netlify/blobs package for Netlify deployment support
+  - Create NetlifyBlobsAdapter class implementing StorageAdapter interface
+  - Implement getConfig, saveConfig, resetToDefaults methods for Netlify Blobs
+  - Add Netlify-specific error handling for quota and access issues
+  - _Requirements: 5.1, 5.2, 5.3, 6.1, 6.2_
 
-- [x] 3. Build Next.js API routes for configuration management
-  - Create GET /api/admin/config endpoint for retrieving configuration
-  - Implement PUT /api/admin/config endpoint for saving configuration
-  - Add POST /api/admin/config/reset endpoint for resetting to defaults
-  - Create GET /api/admin/health endpoint for database health checks
-  - _Requirements: 1.1, 1.2, 4.1, 5.5_
+- [ ] 3. Implement Vercel KV storage adapter
+  - Install @vercel/kv package for Vercel deployment support
+  - Create VercelKVAdapter class implementing StorageAdapter interface
+  - Implement getConfig, saveConfig, resetToDefaults methods for Vercel KV
+  - Add Vercel-specific error handling for quota and access issues
+  - _Requirements: 5.1, 5.2, 5.3, 6.1, 6.2_
 
-- [x] 4. Implement server-side configuration service
-  - Create ServerConfigService class for database operations
-  - Implement getConfig, saveConfig, and resetToDefaults methods
-  - Add configuration validation and error handling
-  - Implement audit logging for configuration changes
-  - _Requirements: 1.1, 1.2, 5.1, 5.2, 5.3_
+- [ ] 4. Implement SQLite storage adapter for traditional servers
+  - Install better-sqlite3 package for traditional server deployments
+  - Create SQLiteAdapter class implementing StorageAdapter interface
+  - Implement database schema creation and migration system
+  - Add SQLite-specific error handling for connection and locking issues
+  - _Requirements: 3.1, 3.2, 3.4, 6.1, 6.2_
 
-- [x] 5. Update ConfigurationManager to use server-first approach
-  - Modify ConfigurationManager to prioritize server API calls
-  - Implement fallback to localStorage when server is unavailable
-  - Add caching mechanism for improved performance
-  - Create sync methods for server-client configuration consistency
+- [ ] 5. Create platform-adaptive migration system
+  - Implement MigrationManager class to handle platform-specific migrations
+  - Create migration strategies for each platform (SQLite, Netlify, Vercel)
+  - Add automatic schema initialization for each storage backend
+  - Implement migration from localStorage to server storage for all platforms
+  - _Requirements: 3.3, 3.4, 3.6_
+
+- [ ] 6. Update Next.js API routes for platform-adaptive storage
+  - Modify GET /api/admin/config to use StorageAdapterFactory
+  - Update PUT /api/admin/config to work with any storage adapter
+  - Enhance POST /api/admin/config/reset for platform-adaptive reset
+  - Add GET /api/admin/platform endpoint to return platform information
+  - _Requirements: 1.1, 1.2, 4.1, 6.5_
+
+- [ ] 7. Implement platform-adaptive server configuration service
+  - Create ServerConfigService class that works with any StorageAdapter
+  - Implement getConfig, saveConfig, resetToDefaults methods
+  - Add platform-specific configuration validation and error handling
+  - Implement audit logging that works across all platforms
+  - _Requirements: 1.1, 1.2, 6.1, 6.2, 6.3_
+
+- [ ] 8. Update ConfigurationManager for platform-adaptive client-side handling
+  - Modify ConfigurationManager to detect server platform capabilities
+  - Implement platform-aware error handling and user messaging
+  - Add fallback strategies specific to each platform's limitations
+  - Create platform-specific caching and sync strategies
   - _Requirements: 2.1, 2.2, 2.4, 4.2, 4.3_
 
-- [x] 6. Add comprehensive error handling and retry logic
-  - Implement error handling for database connection failures
-  - Add retry logic for failed API calls with exponential backoff
-  - Create user-friendly error messages for different failure scenarios
-  - Implement graceful degradation when server is unavailable
-  - _Requirements: 2.1, 2.2, 2.3, 5.2, 5.3_
+- [ ] 9. Add comprehensive platform-adaptive error handling
+  - Implement ErrorHandler class with platform-specific error mapping
+  - Add user-friendly error messages for each platform's failure modes
+  - Create retry logic that adapts to platform-specific rate limits
+  - Implement graceful degradation for platform-specific quota issues
+  - _Requirements: 2.1, 2.2, 2.3, 5.3, 5.4_
 
-- [x] 7. Implement localStorage migration and hybrid storage
-  - Create migration utility to move existing localStorage config to server
-  - Implement hybrid storage strategy with server as primary source
-  - Add localStorage caching for improved performance
-  - Create sync mechanism to keep localStorage and server in sync
+- [ ] 10. Implement localStorage migration for all platforms
+  - Create ConfigMigrationService to migrate from localStorage to any platform
+  - Add platform-specific migration helpers for Netlify, Vercel, and SQLite
+  - Implement migration validation and rollback capabilities
+  - Add migration API endpoint for manual migration triggers
   - _Requirements: 1.3, 2.4, 4.1, 4.3_
 
-- [x] 8. Add authentication middleware for API routes
-  - Implement authentication checks for all admin API endpoints
-  - Add session validation middleware for API route protection
-  - Create rate limiting for API endpoints to prevent abuse
-  - Implement CORS configuration for admin API routes
-  - _Requirements: 1.1, 1.2, 5.2, 5.3_
+- [ ] 11. Update admin dashboard for platform-adaptive storage
+  - Modify admin components to handle platform-specific loading states
+  - Add platform information display in admin interface
+  - Implement platform-specific error messaging and recovery options
+  - Add migration status and manual migration triggers in admin UI
+  - _Requirements: 1.1, 1.2, 4.1, 4.2, 6.2_
 
-- [x] 9. Update admin dashboard to use server-side storage
-  - Modify admin page to use async configuration loading
-  - Update save/reset functionality to use server API calls
-  - Add loading states and error handling for server operations
-  - Implement real-time feedback for configuration changes
-  - _Requirements: 1.1, 1.2, 4.1, 4.2, 5.2_
-
-- [x] 10. Add database backup and recovery mechanisms
-  - Implement configuration export functionality
-  - Create configuration import capability for disaster recovery
-  - Add database file backup utilities
-  - Create database corruption detection and recovery
-  - _Requirements: 3.4, 3.5, 5.3, 5.4_
-
-- [x] 11. Implement audit logging and monitoring
-  - Add detailed logging for all configuration changes
-  - Implement audit trail with timestamps and change tracking
-  - Create monitoring endpoints for system health
-  - Add performance logging for database operations
-  - _Requirements: 5.1, 5.2, 5.4, 5.5_
-
-- [x] 12. Test server-side storage integration
-  - Test configuration persistence across server restarts
-  - Verify fallback mechanism when server is unavailable
-  - Test concurrent access and configuration conflicts
-  - Validate migration from localStorage to server storage
-  - _Requirements: 1.4, 1.5, 2.1, 2.2, 4.4, 4.5_
-
-- [x] 13. Optimize performance and add caching
-  - Implement response caching for configuration API calls
-  - Add database query optimization and indexing
-  - Create connection pooling for better database performance
-  - Implement lazy loading for configuration data
+- [ ] 12. Add platform-specific performance optimizations
+  - Implement platform-specific caching strategies (SQLite indexes, Blob compression, KV pipelines)
+  - Add platform-adaptive request batching and connection pooling
+  - Create platform-specific performance monitoring and logging
+  - Implement lazy loading and compression for large configurations
   - _Requirements: 4.1, 4.2, 4.3_
 
-- [x] 14. Add comprehensive testing and documentation
-  - Create unit tests for database operations and API routes
-  - Add integration tests for end-to-end configuration flow
-  - Test error scenarios and fallback mechanisms
-  - Document API endpoints and database schema
-  - _Requirements: 2.3, 3.4, 5.3, 5.4_
+- [ ] 13. Implement comprehensive audit logging across platforms
+  - Create platform-adaptive audit logging that works with all storage backends
+  - Implement audit trail with timestamps and platform information
+  - Add audit log retrieval API that works across all platforms
+  - Create audit log export functionality for compliance and debugging
+  - _Requirements: 6.1, 6.2, 6.4, 6.5_
+
+- [ ] 14. Add platform-adaptive health checks and monitoring
+  - Create health check endpoints that test platform-specific storage connectivity
+  - Implement platform-specific monitoring and alerting capabilities
+  - Add storage quota monitoring for Netlify and Vercel platforms
+  - Create platform information API for debugging and support
+  - _Requirements: 6.5, 5.3, 5.4_
+
+- [ ] 15. Test platform-adaptive storage across all deployment environments
+  - Create unit tests for each storage adapter (SQLite, Netlify, Vercel)
+  - Add integration tests for platform detection and adapter factory
+  - Test migration scenarios from localStorage to each platform
+  - Validate error handling and fallback mechanisms for each platform
+  - _Requirements: 1.4, 1.5, 2.1, 2.2, 4.4, 4.5_
