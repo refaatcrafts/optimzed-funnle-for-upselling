@@ -89,14 +89,36 @@ export class NetlifyBlobsAdapter extends StorageAdapter {
     }
 
     try {
-      const blobData = await this.store.get('config', { type: 'json' })
+      console.log('NetlifyBlobsAdapter: Getting config from Netlify Blobs...')
       
-      if (!blobData) return null
+      // Add cache-busting by using a fresh request
+      const blobData = await this.store.get('config', { 
+        type: 'json',
+        // Add timestamp to avoid caching issues
+        cacheBust: Date.now().toString()
+      })
+      
+      console.log('NetlifyBlobsAdapter: Raw blob data:', blobData ? 'Found' : 'Not found')
+      
+      if (!blobData) {
+        console.log('NetlifyBlobsAdapter: No config found, returning null')
+        return null
+      }
 
       const blob: NetlifyConfigBlob = typeof blobData === 'string' ? JSON.parse(blobData) : blobData
       
-      return this.isValidConfig(blob.config) ? blob.config : null
+      console.log('NetlifyBlobsAdapter: Parsed config:', {
+        hasConfig: !!blob.config,
+        lastUpdated: blob.config?.lastUpdated,
+        version: blob.metadata?.version
+      })
+      
+      const config = this.isValidConfig(blob.config) ? blob.config : null
+      console.log('NetlifyBlobsAdapter: Returning config:', config ? 'Valid config' : 'Invalid/null config')
+      
+      return config
     } catch (error) {
+      console.error('NetlifyBlobsAdapter: Error getting config:', error)
       if (error.message?.includes('not found')) {
         return null
       }
@@ -114,13 +136,20 @@ export class NetlifyBlobsAdapter extends StorageAdapter {
     }
 
     try {
+      console.log('NetlifyBlobsAdapter: Saving config to Netlify Blobs...', {
+        upselling: config.upselling,
+        lastUpdated: config.lastUpdated
+      })
+      
       // Get existing blob or create new one
       let blob: NetlifyConfigBlob
       
       try {
         const existingData = await this.store.get('config', { type: 'json' })
         blob = existingData ? (typeof existingData === 'string' ? JSON.parse(existingData) : existingData) : null
+        console.log('NetlifyBlobsAdapter: Existing blob found:', !!blob)
       } catch (error) {
+        console.log('NetlifyBlobsAdapter: No existing blob, creating new one')
         blob = null
       }
 
@@ -140,18 +169,27 @@ export class NetlifyBlobsAdapter extends StorageAdapter {
       const now = new Date().toISOString()
       const updatedConfig = { ...config, lastUpdated: now }
       
+      console.log('NetlifyBlobsAdapter: Updating blob with new config:', {
+        oldVersion: blob.metadata.version,
+        newConfig: updatedConfig.upselling,
+        timestamp: now
+      })
+      
       blob.config = updatedConfig
       blob.metadata.updated_at = now
       blob.metadata.version += 1
 
       // Save updated blob
+      console.log('NetlifyBlobsAdapter: Saving blob to Netlify Blobs...')
       await this.store.set('config', JSON.stringify(blob))
+      console.log('NetlifyBlobsAdapter: Blob saved successfully!')
       
       // Log the change
       await this.logConfigChange('UPDATE', updatedConfig)
       
       return true
     } catch (error) {
+      console.error('NetlifyBlobsAdapter: Error saving config:', error)
       throw ErrorHandler.handleStorageError(error, PlatformType.NETLIFY)
     }
   }
