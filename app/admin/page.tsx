@@ -38,16 +38,20 @@ export default function AdminPage() {
       return
     }
 
-    // Load configuration
-    try {
-      const loadedConfig = ConfigurationManager.getConfig()
-      setConfig(loadedConfig)
-    } catch (error) {
-      console.error('Failed to load configuration:', error)
-      setSaveStatus('Failed to load configuration')
-    } finally {
-      setIsLoading(false)
+    // Load configuration asynchronously
+    const loadConfig = async () => {
+      try {
+        const loadedConfig = await ConfigurationManager.getConfig()
+        setConfig(loadedConfig)
+      } catch (error) {
+        console.error('Failed to load configuration:', error)
+        setSaveStatus('Failed to load configuration')
+      } finally {
+        setIsLoading(false)
+      }
     }
+
+    loadConfig()
 
     // Refresh session on activity
     AdminAuthService.refreshSession()
@@ -68,7 +72,7 @@ export default function AdminPage() {
     setHasUnsavedChanges(true)
   }
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!config) return
 
     try {
@@ -82,7 +86,7 @@ export default function AdminPage() {
         return
       }
 
-      const success = ConfigurationManager.saveConfig(config)
+      const success = await ConfigurationManager.saveConfig(config)
       
       if (success) {
         setSaveStatus("Configuration saved successfully!")
@@ -99,10 +103,10 @@ export default function AdminPage() {
     }
   }
 
-  const handleReset = () => {
+  const handleReset = async () => {
     try {
-      ConfigurationManager.resetToDefaults()
-      const resetConfig = ConfigurationManager.getConfig()
+      setSaveStatus("Resetting...")
+      const resetConfig = await ConfigurationManager.resetToDefaults()
       setConfig(resetConfig)
       setHasUnsavedChanges(false)
       setSaveStatus("Configuration reset to defaults")

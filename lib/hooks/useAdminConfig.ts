@@ -7,42 +7,60 @@ export function useAdminConfigStandalone() {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    try {
-      const loadedConfig = ConfigurationManager.getConfig()
-      setConfig(loadedConfig)
-    } catch (error) {
-      console.error('Failed to load admin config:', error)
-      const defaultConfig = ConfigurationManager.getConfig()
-      setConfig(defaultConfig)
-    } finally {
-      setIsLoading(false)
+    const loadConfig = async () => {
+      try {
+        const loadedConfig = await ConfigurationManager.getConfig()
+        setConfig(loadedConfig)
+      } catch (error) {
+        console.error('Failed to load admin config:', error)
+        // Fallback to sync version if async fails
+        const defaultConfig = ConfigurationManager.getConfigSync()
+        setConfig(defaultConfig)
+      } finally {
+        setIsLoading(false)
+      }
     }
+
+    loadConfig()
   }, [])
 
-  const updateFeature = (featureId: keyof AdminConfig['upselling'], enabled: boolean) => {
+  const updateFeature = async (featureId: keyof AdminConfig['upselling'], enabled: boolean) => {
     if (!config) return false
 
-    const success = ConfigurationManager.updateFeature(featureId, enabled)
-    if (success) {
-      const updatedConfig = ConfigurationManager.getConfig()
-      setConfig(updatedConfig)
+    try {
+      const success = await ConfigurationManager.updateFeature(featureId, enabled)
+      if (success) {
+        const updatedConfig = await ConfigurationManager.getConfig()
+        setConfig(updatedConfig)
+      }
+      return success
+    } catch (error) {
+      console.error('Failed to update feature:', error)
+      return false
     }
-    return success
   }
 
-  const saveConfig = (configToSave?: AdminConfig): boolean => {
-    const success = ConfigurationManager.saveConfig(configToSave)
-    if (success) {
-      const savedConfig = ConfigurationManager.getConfig()
-      setConfig(savedConfig)
+  const saveConfig = async (configToSave?: AdminConfig): Promise<boolean> => {
+    try {
+      const success = await ConfigurationManager.saveConfig(configToSave)
+      if (success) {
+        const savedConfig = await ConfigurationManager.getConfig()
+        setConfig(savedConfig)
+      }
+      return success
+    } catch (error) {
+      console.error('Failed to save config:', error)
+      return false
     }
-    return success
   }
 
-  const resetToDefaults = () => {
-    ConfigurationManager.resetToDefaults()
-    const resetConfig = ConfigurationManager.getConfig()
-    setConfig(resetConfig)
+  const resetToDefaults = async () => {
+    try {
+      const resetConfig = await ConfigurationManager.resetToDefaults()
+      setConfig(resetConfig)
+    } catch (error) {
+      console.error('Failed to reset to defaults:', error)
+    }
   }
 
   const isFeatureEnabled = (featureId: keyof AdminConfig['upselling']): boolean => {
@@ -64,13 +82,19 @@ export function useFeatureToggleStandalone(featureId: keyof AdminConfig['upselli
   const [isEnabled, setIsEnabled] = useState(false)
 
   useEffect(() => {
-    try {
-      const enabled = ConfigurationManager.isFeatureEnabled(featureId)
-      setIsEnabled(enabled)
-    } catch (error) {
-      console.error(`Failed to check feature ${featureId}:`, error)
-      setIsEnabled(false)
+    const loadFeatureState = async () => {
+      try {
+        const config = await ConfigurationManager.getConfig()
+        setIsEnabled(config.upselling[featureId] ?? false)
+      } catch (error) {
+        console.error(`Failed to check feature ${featureId}:`, error)
+        // Fallback to sync version if async fails
+        const enabled = ConfigurationManager.isFeatureEnabled(featureId)
+        setIsEnabled(enabled)
+      }
     }
+
+    loadFeatureState()
   }, [featureId])
 
   return isEnabled

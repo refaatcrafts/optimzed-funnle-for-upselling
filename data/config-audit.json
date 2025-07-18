@@ -1,0 +1,51 @@
+[
+  {
+    "id": 1,
+    "action": "CREATE",
+    "config_data": "{\"upselling\":{\"frequentlyBoughtTogether\":true,\"youMightAlsoLike\":true,\"freeShippingProgressBar\":true,\"postCartUpsellOffers\":true,\"crossSellRecommendations\":true},\"lastUpdated\":\"2025-07-18T11:16:58.472Z\"}",
+    "timestamp": "2025-07-18T11:16:58.473Z",
+    "user_agent": "System"
+  },
+  {
+    "id": 2,
+    "action": "UPDATE",
+    "config_data": "{\"upselling\":{\"frequentlyBoughtTogether\":false,\"youMightAlsoLike\":false,\"freeShippingProgressBar\":false,\"postCartUpsellOffers\":true,\"crossSellRecommendations\":true},\"lastUpdated\":\"2025-07-18T11:17:10.331Z\"}",
+    "timestamp": "2025-07-18T11:17:10.332Z",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 3,
+    "action": "UPDATE",
+    "config_data": "{\"upselling\":{\"frequentlyBoughtTogether\":true,\"youMightAlsoLike\":true,\"freeShippingProgressBar\":true,\"postCartUpsellOffers\":true,\"crossSellRecommendations\":true},\"lastUpdated\":\"2025-07-18T11:28:57.387Z\"}",
+    "timestamp": "2025-07-18T11:28:57.388Z",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 4,
+    "action": "UPDATE",
+    "config_data": "{\"upselling\":{\"frequentlyBoughtTogether\":true,\"youMightAlsoLike\":false,\"freeShippingProgressBar\":true,\"postCartUpsellOffers\":true,\"crossSellRecommendations\":true},\"lastUpdated\":\"2025-07-18T11:29:25.371Z\"}",
+    "timestamp": "2025-07-18T11:29:25.372Z",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 5,
+    "action": "UPDATE",
+    "config_data": "{\"upselling\":{\"frequentlyBoughtTogether\":true,\"youMightAlsoLike\":true,\"freeShippingProgressBar\":true,\"postCartUpsellOffers\":true,\"crossSellRecommendations\":true},\"lastUpdated\":\"2025-07-18T11:29:41.343Z\"}",
+    "timestamp": "2025-07-18T11:29:41.344Z",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 6,
+    "action": "UPDATE",
+    "config_data": "{\"upselling\":{\"frequentlyBoughtTogether\":false,\"youMightAlsoLike\":true,\"freeShippingProgressBar\":true,\"postCartUpsellOffers\":true,\"crossSellRecommendations\":true},\"lastUpdated\":\"2025-07-18T11:30:04.519Z\"}",
+    "timestamp": "2025-07-18T11:30:04.521Z",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 7,
+    "action": "UPDATE",
+    "config_data": "{\"upselling\":{\"frequentlyBoughtTogether\":true,\"youMightAlsoLike\":true,\"freeShippingProgressBar\":true,\"postCartUpsellOffers\":true,\"crossSellRecommendations\":true},\"lastUpdated\":\"2025-07-18T11:40:48.535Z\"}",
+    "timestamp": "2025-07-18T11:40:48.536Z",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+  }
+]

@@ -1,10 +1,21 @@
 import { AdminSession, AdminAuthState, LoginAttempt } from '@/lib/types/admin'
-import { 
-  ADMIN_CREDENTIALS, 
-  SESSION_CONFIG, 
-  RATE_LIMITING 
+import {
+  ADMIN_CREDENTIALS,
+  SESSION_CONFIG,
+  RATE_LIMITING
 } from '@/lib/constants/admin'
-import { AdminAuthError, logError } from '@/lib/utils/errors'
+import { ConfigError, createConfigError } from '@/lib/utils/errors'
+
+export class AdminAuthError extends ConfigError {
+  constructor(message: string, code: string = 'AUTH_ERROR', statusCode: number = 401) {
+    super(message, code, statusCode, false)
+    this.name = 'AdminAuthError'
+  }
+}
+
+function logError(error: unknown, context: string): void {
+  console.error(`[${context}]`, error)
+}
 
 export class AdminAuthService {
   private static getAuthState(): AdminAuthState {
@@ -44,7 +55,7 @@ export class AdminAuthService {
     const authState = this.getAuthState()
     const recentAttempts = this.cleanOldAttempts(authState.loginAttempts)
     const failedAttempts = recentAttempts.filter(attempt => !attempt.success)
-    
+
     return failedAttempts.length >= RATE_LIMITING.MAX_ATTEMPTS
   }
 
@@ -58,8 +69,8 @@ export class AdminAuthService {
         throw new AdminAuthError('Username and password are required', 'MISSING_CREDENTIALS')
       }
 
-      const isValid = username === ADMIN_CREDENTIALS.USERNAME && 
-                     password === ADMIN_CREDENTIALS.PASSWORD
+      const isValid = username === ADMIN_CREDENTIALS.USERNAME &&
+        password === ADMIN_CREDENTIALS.PASSWORD
 
       // Record login attempt
       const authState = this.getAuthState()
@@ -127,16 +138,16 @@ export class AdminAuthService {
     if (authState.session) {
       const now = new Date()
       authState.session.lastActivity = now.toISOString()
-      
+
       // Extend session if more than half the duration has passed
       const lastActivity = new Date(authState.session.lastActivity)
       const expiresAt = new Date(authState.session.expiresAt)
       const sessionDuration = expiresAt.getTime() - lastActivity.getTime()
-      
+
       if (sessionDuration < SESSION_CONFIG.DURATION / 2) {
         authState.session.expiresAt = new Date(now.getTime() + SESSION_CONFIG.DURATION).toISOString()
       }
-      
+
       this.saveAuthState(authState)
     }
   }
@@ -152,11 +163,24 @@ export class AdminAuthService {
     return authState.session
   }
 
+  static getAuthHeaders(): Record<string, string> {
+    const session = this.getSession()
+    if (!session || !session.isAuthenticated) {
+      return {}
+    }
+
+    // Create a simple token from the session data
+    const token = Buffer.from(JSON.stringify(session)).toString('base64')
+    return {
+      'Authorization': `Bearer ${token}`
+    }
+  }
+
   static getRemainingAttempts(): number {
     const authState = this.getAuthState()
     const recentAttempts = this.cleanOldAttempts(authState.loginAttempts)
     const failedAttempts = recentAttempts.filter(attempt => !attempt.success)
-    
+
     return Math.max(0, RATE_LIMITING.MAX_ATTEMPTS - failedAttempts.length)
   }
 }
