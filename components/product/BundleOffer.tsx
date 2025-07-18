@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/card'
 import { Bundle } from '@/lib/types'
 import { formatPrice, calculateDiscountPercentage } from '@/lib/utils/format'
 import { PRODUCT_CONFIG } from '@/lib/constants/products'
+import { useFeatureToggleStandalone } from '@/lib/hooks/useAdminConfig'
 
 interface BundleOfferProps {
   bundle: Bundle
@@ -13,7 +14,13 @@ interface BundleOfferProps {
 }
 
 export function BundleOffer({ bundle, onAddBundle, className }: BundleOfferProps) {
+  const isEnabled = useFeatureToggleStandalone('frequentlyBoughtTogether')
   const discountPercentage = calculateDiscountPercentage(bundle.originalTotal, bundle.bundlePrice)
+
+  // Don't render if feature is disabled
+  if (!isEnabled) {
+    return null
+  }
 
   return (
     <Card className={`p-6 bg-orange-50 border border-orange-200 ${className}`}>

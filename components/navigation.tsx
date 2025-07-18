@@ -1,18 +1,39 @@
 "use client"
 
 import Link from "next/link"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Coffee, User, Menu } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { CartSheet } from "@/components/cart/CartSheet"
 import { MobileMenu } from "@/components/layout/MobileMenu"
 import { useCart } from "@/lib/hooks/useCart"
-import { APP_CONFIG, NAVIGATION_ITEMS } from "@/lib/constants/app"
+import { APP_CONFIG, NAVIGATION_ITEMS, ADMIN_NAVIGATION_ITEM } from "@/lib/constants/app"
+import { AdminAuthService } from "@/lib/services/admin-auth"
 
 export function Navigation() {
   const cart = useCart()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isCartOpen, setIsCartOpen] = useState(false)
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false)
+
+  useEffect(() => {
+    // Check admin authentication status
+    const checkAdminAuth = () => {
+      setIsAdminAuthenticated(AdminAuthService.validateSession())
+    }
+
+    checkAdminAuth()
+    
+    // Check periodically for session changes
+    const interval = setInterval(checkAdminAuth, 5000)
+    
+    return () => clearInterval(interval)
+  }, [])
+
+  // Create navigation items with conditional admin link
+  const navigationItems = isAdminAuthenticated 
+    ? [...NAVIGATION_ITEMS, ADMIN_NAVIGATION_ITEM]
+    : NAVIGATION_ITEMS
 
   return (
     <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
@@ -26,7 +47,7 @@ export function Navigation() {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            {NAVIGATION_ITEMS.map((item) => (
+            {navigationItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
@@ -63,7 +84,7 @@ export function Navigation() {
 
         {/* Mobile Navigation */}
         <MobileMenu
-          items={NAVIGATION_ITEMS}
+          items={navigationItems}
           isOpen={isMenuOpen}
           onItemClick={() => setIsMenuOpen(false)}
         />

@@ -8,9 +8,10 @@ export const APP_CONFIG = {
 export const NAVIGATION_ITEMS = [
   { href: '/', label: 'Home' },
   { href: '/product', label: 'Products' },
-  { href: '/admin', label: 'Admin' },
   { href: '/checkout', label: 'Checkout' },
 ] as const
+
+export const ADMIN_NAVIGATION_ITEM = { href: '/admin', label: 'Admin' } as const
 
 export const SOCIAL_LINKS = {
   twitter: '#',

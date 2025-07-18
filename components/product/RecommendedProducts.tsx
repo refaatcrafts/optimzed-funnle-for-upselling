@@ -1,21 +1,27 @@
 import { memo } from 'react'
 import { ProductCard } from './ProductCard'
 import { Product } from '@/lib/types'
+import { useFeatureToggleStandalone } from '@/lib/hooks/useAdminConfig'
 
 interface RecommendedProductsProps {
   products: readonly Product[]
   onAddToCart?: (product: Product) => void
   title?: string
   className?: string
+  featureId?: 'youMightAlsoLike' | 'crossSellRecommendations'
 }
 
 export const RecommendedProducts = memo(function RecommendedProducts({ 
   products, 
   onAddToCart, 
   title = "Complete Your Coffee Experience",
-  className 
+  className,
+  featureId = 'youMightAlsoLike'
 }: RecommendedProductsProps) {
-  if (products.length === 0) return null
+  const isEnabled = useFeatureToggleStandalone(featureId)
+  
+  // Don't render if feature is disabled or no products
+  if (!isEnabled || products.length === 0) return null
 
   return (
     <div className={className}>
