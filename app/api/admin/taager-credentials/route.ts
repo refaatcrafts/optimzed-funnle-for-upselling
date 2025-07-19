@@ -11,6 +11,15 @@ async function getHandler(request: AuthenticatedRequest): Promise<NextResponse> 
   try {
     const config = await serverConfigService.getConfig()
     
+    // Check if taagerApi configuration exists
+    if (!config.taagerApi) {
+      return NextResponse.json({
+        success: false,
+        error: 'Taager API configuration not found',
+        timestamp: new Date().toISOString()
+      }, { status: 404 })
+    }
+    
     // Return credentials without sensitive data
     const safeCredentials = {
       taagerId: config.taagerApi.taagerId,
@@ -61,6 +70,18 @@ async function putHandler(request: AuthenticatedRequest): Promise<NextResponse> 
     
     // Get current config and update with new credentials
     const config = await serverConfigService.getConfig()
+    
+    // Ensure taagerApi configuration exists
+    if (!config.taagerApi) {
+      config.taagerApi = {
+        apiKey: null,
+        taagerId: null,
+        baseUrl: "https://public.api.dev.taager.com",
+        country: "SAU",
+        isConfigured: false,
+        lastValidated: null
+      }
+    }
     
     // Update Taager API configuration
     config.taagerApi = {

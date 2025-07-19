@@ -1,5 +1,19 @@
 [
   {
+    "id": 1752931184850,
+    "action": "UPDATE",
+    "config_data": "{\"upselling\":{\"frequentlyBoughtTogether\":true,\"youMightAlsoLike\":true,\"freeShippingProgressBar\":true,\"postCartUpsellOffers\":true,\"crossSellRecommendations\":true},\"productConfiguration\":{\"homePagePrimary\":\"SA050301JA00991\",\"recommendations\":[\"SA050301JA00991\"],\"frequentlyBoughtTogether\":[\"SA050301JA00991\"],\"upsellOffers\":[\"SA050301JA00991\"],\"crossSellRecommendations\":[\"SA050301JA00991\"]},\"taagerApi\":{\"apiKey\":\"TK-1261720-20250719074702-65B28BB2069B91AF09C720ACA9C1D605\",\"taagerId\":1260681,\"baseUrl\":\"https://public.api.dev.taager.com\",\"country\":\"SAU\",\"isConfigured\":true,\"lastValidated\":\"2025-07-19T13:19:34.906Z\"},\"lastUpdated\":\"2025-07-19T13:19:44.849Z\"}",
+    "timestamp": "2025-07-19T13:19:44.850Z",
+    "platform": "sqlite"
+  },
+  {
+    "id": 1752931174908,
+    "action": "UPDATE",
+    "config_data": "{\"upselling\":{\"frequentlyBoughtTogether\":true,\"youMightAlsoLike\":true,\"freeShippingProgressBar\":true,\"postCartUpsellOffers\":true,\"crossSellRecommendations\":true},\"productConfiguration\":{\"homePagePrimary\":\"SA050301JA00991\",\"recommendations\":[\"SA050301JA00991\"],\"frequentlyBoughtTogether\":[\"SA050301JA00991\"],\"upsellOffers\":[\"SA050301JA00991\"],\"crossSellRecommendations\":[\"SA050301JA00991\"]},\"taagerApi\":{\"apiKey\":\"TK-1261720-20250719074702-65B28BB2069B91AF09C720ACA9C1D605\",\"taagerId\":1260681,\"baseUrl\":\"https://public.api.dev.taager.com\",\"country\":\"SAU\",\"isConfigured\":true,\"lastValidated\":\"2025-07-19T13:19:34.906Z\"},\"lastUpdated\":\"2025-07-19T13:19:34.907Z\"}",
+    "timestamp": "2025-07-19T13:19:34.908Z",
+    "platform": "sqlite"
+  },
+  {
     "id": 1752929227844,
     "action": "RESET",
     "config_data": "{\"upselling\":{\"frequentlyBoughtTogether\":true,\"youMightAlsoLike\":true,\"freeShippingProgressBar\":true,\"postCartUpsellOffers\":true,\"crossSellRecommendations\":true},\"lastUpdated\":\"2025-07-19T12:47:07.842Z\"}",

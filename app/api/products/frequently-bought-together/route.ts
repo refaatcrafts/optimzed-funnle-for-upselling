@@ -13,8 +13,8 @@ export async function GET(request: Request) {
     // Get configuration from server
     const fullConfig = await serverConfigService.getConfig()
     
-    // Check if API is configured
-    if (!fullConfig.taagerApi.isConfigured || !fullConfig.taagerApi.apiKey || !fullConfig.taagerApi.taagerId) {
+    // Check if API configuration exists and is configured
+    if (!fullConfig.taagerApi || !fullConfig.taagerApi.isConfigured || !fullConfig.taagerApi.apiKey || !fullConfig.taagerApi.taagerId) {
       return NextResponse.json({
         success: false,
         error: 'API not configured',
