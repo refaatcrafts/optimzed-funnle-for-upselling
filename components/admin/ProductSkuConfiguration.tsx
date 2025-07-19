@@ -10,6 +10,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Loader2, Plus, X, CheckCircle, XCircle, Eye } from 'lucide-react'
 import { ProductConfiguration, ValidationResult } from '@/lib/types/admin'
 import { PRODUCT_CONFIG_LIMITS } from '@/lib/constants/admin'
+import { AdminAuthService } from '@/lib/services/admin-auth'
 
 interface ProductSkuConfigurationProps {
   onConfigurationUpdated?: () => void
@@ -43,11 +44,20 @@ export function ProductSkuConfiguration({ onConfigurationUpdated }: ProductSkuCo
   const loadConfiguration = async () => {
     try {
       setLoading(true)
-      const response = await fetch('/api/admin/product-config')
+      const authHeaders = AdminAuthService.getAuthHeaders()
+      const response = await fetch('/api/admin/product-config', {
+        headers: {
+          'Content-Type': 'application/json',
+          ...authHeaders
+        }
+      })
       const result = await response.json()
+      
+      console.log('Loaded configuration from server:', result.data)
       
       if (result.success) {
         setConfig(result.data)
+        console.log('Set config state to:', result.data)
       } else {
         setError('Failed to load product configuration')
       }
@@ -64,18 +74,32 @@ export function ProductSkuConfiguration({ onConfigurationUpdated }: ProductSkuCo
       setSaving(true)
       setError(null)
       
+      console.log('=== SAVE CONFIGURATION DEBUG ===')
+      console.log('Current config state:', JSON.stringify(config, null, 2))
+      console.log('Config recommendations:', config.recommendations)
+      console.log('Config upsellOffers:', config.upsellOffers)
+      console.log('Config crossSellRecommendations:', config.crossSellRecommendations)
+      
+      const authHeaders = AdminAuthService.getAuthHeaders()
       const response = await fetch('/api/admin/product-config', {
         method: 'PUT',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          ...authHeaders
         },
         body: JSON.stringify(config)
       })
       
       const result = await response.json()
+      console.log('Save result:', result)
       
       if (result.success) {
         setSuccess('Configuration saved successfully!')
+        // Update local config with the saved data
+        if (result.data) {
+          console.log('Updating config with server response:', result.data)
+          setConfig(result.data)
+        }
         onConfigurationUpdated?.()
       } else {
         setError(result.error || 'Failed to save configuration')
@@ -91,7 +115,13 @@ export function ProductSkuConfiguration({ onConfigurationUpdated }: ProductSkuCo
   const validateAllSkus = async () => {
     try {
       setValidating(true)
-      const response = await fetch('/api/admin/product-config/validate')
+      const authHeaders = AdminAuthService.getAuthHeaders()
+      const response = await fetch('/api/admin/product-config/validate', {
+        headers: {
+          'Content-Type': 'application/json',
+          ...authHeaders
+        }
+      })
       const result = await response.json()
       
       if (result.success) {
@@ -109,10 +139,12 @@ export function ProductSkuConfiguration({ onConfigurationUpdated }: ProductSkuCo
 
   const validateSingleSku = async (sku: string): Promise<boolean> => {
     try {
+      const authHeaders = AdminAuthService.getAuthHeaders()
       const response = await fetch('/api/admin/product-config/validate', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          ...authHeaders
         },
         body: JSON.stringify({ sku })
       })
@@ -136,10 +168,20 @@ export function ProductSkuConfiguration({ onConfigurationUpdated }: ProductSkuCo
     const sku = newSkus[section].trim()
     if (!sku) return
 
-    // Check limit
-    const currentArray = config[section === 'recommendation' ? 'recommendations' : 
-                              section === 'frequentlyBoughtTogether' ? 'frequentlyBoughtTogether' :
-                              section === 'upsellOffer' ? 'upsellOffers' : 'crossSellRecommendations'] as string[]
+    console.log('Adding SKU:', sku, 'to section:', section)
+
+    // Map section names to config property names
+    const sectionMap = {
+      recommendation: 'recommendations',
+      frequentlyBoughtTogether: 'frequentlyBoughtTogether',
+      upsellOffer: 'upsellOffers',
+      crossSellRecommendation: 'crossSellRecommendations'
+    } as const
+
+    const configKey = sectionMap[section]
+    const currentArray = config[configKey] as string[]
+    
+    console.log('Current array for', configKey, ':', currentArray)
     
     if (currentArray.length >= maxLimit) {
       setError(`Maximum ${maxLimit} items allowed for this section`)
@@ -152,24 +194,32 @@ export function ProductSkuConfiguration({ onConfigurationUpdated }: ProductSkuCo
       return
     }
 
-    // Validate SKU
-    const isValid = await validateSingleSku(sku)
-    if (!isValid) {
-      setError('Invalid SKU - product not found')
-      return
-    }
-
-    // Add to configuration
-    setConfig(prev => ({
-      ...prev,
-      [section === 'recommendation' ? 'recommendations' : 
-       section === 'frequentlyBoughtTogether' ? 'frequentlyBoughtTogether' :
-       section === 'upsellOffer' ? 'upsellOffers' : 'crossSellRecommendations']: [...currentArray, sku]
-    }))
+    // Add to configuration first (don't block on validation)
+    const newArray = [...currentArray, sku]
+    console.log('New array will be:', newArray)
+    
+    setConfig(prev => {
+      const newConfig = {
+        ...prev,
+        [configKey]: newArray
+      }
+      console.log('Setting new config:', newConfig)
+      return newConfig
+    })
 
     // Clear input
     setNewSkus(prev => ({ ...prev, [section]: '' }))
     setError(null)
+
+    // Validate SKU in background (non-blocking)
+    try {
+      const isValid = await validateSingleSku(sku)
+      if (!isValid) {
+        console.warn('SKU validation failed for:', sku, 'but SKU was still added')
+      }
+    } catch (error) {
+      console.warn('SKU validation error for:', sku, error)
+    }
   }
 
   const removeSku = (section: string, sku: string) => {
@@ -420,7 +470,10 @@ function SkuSection({
             onKeyPress={(e) => e.key === 'Enter' && onAddSku()}
           />
           <Button
-            onClick={onAddSku}
+            onClick={() => {
+              console.log('+ Button clicked! newSku:', newSku)
+              onAddSku()
+            }}
             disabled={!newSku.trim()}
             size="sm"
           >

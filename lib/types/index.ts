@@ -4,6 +4,7 @@ export interface Product {
   price: number
   originalPrice?: number
   image: string
+  images?: string[]  // Additional images from API
   rating: number
   reviews: number
   description?: string

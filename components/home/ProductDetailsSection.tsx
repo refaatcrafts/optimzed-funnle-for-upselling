@@ -26,8 +26,15 @@ export function ProductDetailsSection({ className }: ProductDetailsSectionProps)
         setLoading(true)
         setError(null)
         
-        const homePageProduct = await productDataService.getHomePageProduct()
-        setProduct(homePageProduct)
+        const response = await fetch('/api/products/home-page')
+        const result = await response.json()
+        
+        if (result.success && result.data) {
+          setProduct(result.data)
+        } else {
+          console.warn('No home page product configured or API error:', result.error)
+          setProduct(null)
+        }
       } catch (err) {
         console.error('Failed to load home page product:', err)
         setError('Failed to load product details')
@@ -142,11 +149,15 @@ export function ProductDetailsSection({ className }: ProductDetailsSectionProps)
   }
 
   // Show dynamic product content
+  // Use additional images from the API response, fallback to static images if needed
   const productImages = [
     product.image,
-    // Add any additional images from the product data
-    ...(product.specifications?.images ? [product.specifications.images] : [])
-  ].filter(Boolean)
+    ...(product.images || []),
+    // Fallback to static images if we don't have enough
+    PRODUCT_IMAGES.coffeeBeans,
+    PRODUCT_IMAGES.coffeeBlender,
+    PRODUCT_IMAGES.coffeeCup1
+  ].filter(Boolean).slice(0, 4) // Limit to 4 images for the grid
 
   return (
     <section className={`py-20 bg-gray-50 ${className}`}>

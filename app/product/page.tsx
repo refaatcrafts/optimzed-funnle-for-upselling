@@ -109,16 +109,19 @@ export default function ProductPage() {
 
           {/* Bundle Section */}
           <BundleOffer 
-            bundle={bundle}
             onAddBundle={handleAddBundle}
             className="mt-16"
+            useDynamicData={true}
+            productId={product.id}
           />
 
           {/* Recommended Products */}
           <RecommendedProducts
-            products={RECOMMENDED_PRODUCTS_DATA}
             onAddToCart={handleAddRecommended}
             className="mt-16"
+            featureId="youMightAlsoLike"
+            useDynamicData={true}
+            title="You Might Also Like"
           />
         </div>
 

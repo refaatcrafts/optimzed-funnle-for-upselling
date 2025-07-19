@@ -1,9 +1,9 @@
 import { Product } from '@/lib/types'
-import { 
-  TaagerVariantGroup, 
-  TaagerProductVariant, 
+import {
+  TaagerVariantGroup,
+  TaagerProductVariant,
   ProductConfiguration,
-  ValidationResult 
+  ValidationResult
 } from '@/lib/types/admin'
 import { TaagerApiClient, taagerApiClient } from './taager-api-client'
 import { ConfigurationManager } from './config-manager'
@@ -18,11 +18,15 @@ export class ProductDataService {
   }
 
   // Primary methods for fetching configured products
-  async getHomePageProduct(): Promise<Product | null> {
+  async getHomePageProduct(config?: any): Promise<Product | null> {
     try {
-      const config = await ConfigurationManager.getConfig()
-      const sku = config.productConfiguration.homePagePrimary
-      
+      let productConfig = config
+      if (!productConfig) {
+        productConfig = await ConfigurationManager.getConfig()
+      }
+
+      const sku = productConfig.productConfiguration.homePagePrimary
+
       if (!sku) {
         console.debug('No home page primary product configured')
         return null
@@ -35,11 +39,15 @@ export class ProductDataService {
     }
   }
 
-  async getRecommendations(): Promise<Product[]> {
+  async getRecommendations(config?: any): Promise<Product[]> {
     try {
-      const config = await ConfigurationManager.getConfig()
-      const skus = config.productConfiguration.recommendations
-      
+      let productConfig = config
+      if (!productConfig) {
+        productConfig = await ConfigurationManager.getConfig()
+      }
+
+      const skus = productConfig.productConfiguration.recommendations
+
       if (skus.length === 0) {
         console.debug('No recommendation products configured')
         return []
@@ -52,11 +60,15 @@ export class ProductDataService {
     }
   }
 
-  async getFrequentlyBoughtTogether(productId?: string): Promise<Product[]> {
+  async getFrequentlyBoughtTogether(productId?: string, config?: any): Promise<Product[]> {
     try {
-      const config = await ConfigurationManager.getConfig()
-      const skus = config.productConfiguration.frequentlyBoughtTogether
-      
+      let productConfig = config
+      if (!productConfig) {
+        productConfig = await ConfigurationManager.getConfig()
+      }
+
+      const skus = productConfig.productConfiguration.frequentlyBoughtTogether
+
       if (skus.length === 0) {
         console.debug('No frequently bought together products configured')
         return []
@@ -69,11 +81,15 @@ export class ProductDataService {
     }
   }
 
-  async getUpsellOffers(): Promise<Product[]> {
+  async getUpsellOffers(config?: any): Promise<Product[]> {
     try {
-      const config = await ConfigurationManager.getConfig()
-      const skus = config.productConfiguration.upsellOffers
-      
+      let productConfig = config
+      if (!productConfig) {
+        productConfig = await ConfigurationManager.getConfig()
+      }
+
+      const skus = productConfig.productConfiguration.upsellOffers
+
       if (skus.length === 0) {
         console.debug('No upsell offer products configured')
         return []
@@ -90,7 +106,7 @@ export class ProductDataService {
     try {
       const config = await ConfigurationManager.getConfig()
       const skus = config.productConfiguration.crossSellRecommendations
-      
+
       if (skus.length === 0) {
         console.debug('No cross-sell recommendation products configured')
         return []
@@ -120,10 +136,10 @@ export class ProductDataService {
       }
 
       const product = this.mapTaagerProductToProduct(variantGroup.primaryVariant)
-      
+
       // Cache the result
       this.setCache(sku, product)
-      
+
       return product
     } catch (error) {
       console.error(`Failed to fetch product for SKU ${sku}:`, error)
@@ -153,11 +169,11 @@ export class ProductDataService {
       // Fetch uncached products
       if (uncachedSkus.length > 0) {
         const variantGroups = await this.apiClient.getMultipleVariantGroups(uncachedSkus)
-        
+
         for (const variantGroup of variantGroups) {
           const product = this.mapTaagerProductToProduct(variantGroup.primaryVariant)
           results.push(product)
-          
+
           // Cache the result
           this.setCache(variantGroup.primaryVariant.id, product)
         }
@@ -194,16 +210,30 @@ export class ProductDataService {
       }
     }
 
-    // Extract features from description or howToUse
+    // Extract features from specifications or howToUse
     const features: string[] = []
-    if (variant.howToUse) {
-      // Split by common delimiters and clean up
+    if (variant.specifications) {
+      // Split specifications by bullet points and clean up
+      const specFeatures = variant.specifications
+        .split(/[•\n\r]/)
+        .map(f => f.trim())
+        .filter(f => f.length > 0 && f.length < 200 && !f.includes('*'))
+        .slice(0, 8) // Limit to 8 features
+      features.push(...specFeatures)
+    }
+
+    if (variant.howToUse && features.length < 5) {
+      // Add howToUse features if we don't have enough from specifications
       const howToUseFeatures = variant.howToUse
         .split(/[•\n\r-]/)
         .map(f => f.trim())
-        .filter(f => f.length > 0 && f.length < 100)
+        .filter(f => f.length > 0 && f.length < 200)
+        .slice(0, 5 - features.length)
       features.push(...howToUseFeatures)
     }
+
+    // Get description in Arabic (primary) or fallback to productDescription
+    const description = variant.description?.ar || variant.productDescription || ''
 
     return {
       id: variant.id,
@@ -211,9 +241,10 @@ export class ProductDataService {
       price: variant.productPrice,
       originalPrice: variant.productPrice + variant.productProfit, // Calculate original price
       image: variant.productPicture,
+      images: additionalImages.length > 0 ? additionalImages : undefined,
       rating: Math.min(5, Math.max(1, 4 + (variant.orderCount / 1000))), // Estimate rating based on order count
       reviews: variant.orderCount,
-      description: variant.description?.en || variant.productDescription || '',
+      description: description,
       features: features.length > 0 ? features : undefined,
       specifications: Object.keys(specifications).length > 0 ? specifications : undefined,
       createdAt: variant.createdAt ? new Date(variant.createdAt) : undefined,
@@ -283,7 +314,7 @@ export class ProductDataService {
 
     try {
       const variantGroup = await this.apiClient.getVariantGroup(sku, false) // Don't use cache for validation
-      
+
       if (variantGroup) {
         result.isValid = true
         result.productName = variantGroup.primaryVariant.productName
@@ -309,7 +340,7 @@ export class ProductDataService {
       ].filter(Boolean) as string[]
 
       const results: ValidationResult[] = []
-      
+
       // Validate each SKU
       for (const sku of allSkus) {
         const result = await this.validateSku(sku)

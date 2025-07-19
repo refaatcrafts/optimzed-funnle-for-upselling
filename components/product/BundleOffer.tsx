@@ -41,12 +41,19 @@ export function BundleOffer({
         setLoading(true)
         setError(null)
         
-        const products = await productDataService.getFrequentlyBoughtTogether(productId)
+        const url = productId 
+          ? `/api/products/frequently-bought-together?productId=${productId}`
+          : '/api/products/frequently-bought-together'
         
-        if (products.length > 0) {
+        const response = await fetch(url)
+        const result = await response.json()
+        
+        if (result.success && result.data && result.data.length > 0) {
+          const products = result.data
+          
           // Create a bundle from the products
-          const originalTotal = products.reduce((sum, p) => sum + (p.originalPrice || p.price), 0)
-          const bundlePrice = products.reduce((sum, p) => sum + p.price, 0)
+          const originalTotal = products.reduce((sum: number, p: Product) => sum + (p.originalPrice || p.price), 0)
+          const bundlePrice = products.reduce((sum: number, p: Product) => sum + p.price, 0)
           const savings = originalTotal - bundlePrice
           
           const bundle: Bundle = {
@@ -60,6 +67,7 @@ export function BundleOffer({
           
           setDynamicBundle(bundle)
         } else {
+          console.warn('No frequently bought together products configured:', result.error)
           setDynamicBundle(null)
         }
       } catch (err) {

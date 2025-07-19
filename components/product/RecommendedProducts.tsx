@@ -38,15 +38,25 @@ export const RecommendedProducts = memo(function RecommendedProducts({
         setLoading(true)
         setError(null)
         
-        let products: Product[] = []
+        let endpoint = ''
         
         if (featureId === 'youMightAlsoLike') {
-          products = await productDataService.getRecommendations()
+          endpoint = '/api/products/recommendations'
         } else if (featureId === 'crossSellRecommendations') {
-          products = await productDataService.getCrossSellRecommendations()
+          endpoint = '/api/products/upsell-offers' // Cross-sell uses upsell offers
         }
         
-        setDynamicProducts(products)
+        if (endpoint) {
+          const response = await fetch(endpoint)
+          const result = await response.json()
+          
+          if (result.success && result.data) {
+            setDynamicProducts(result.data)
+          } else {
+            console.warn(`No ${featureId} products configured:`, result.error)
+            setDynamicProducts([])
+          }
+        }
       } catch (err) {
         console.error(`Failed to load ${featureId} products:`, err)
         setError('Failed to load recommendations')

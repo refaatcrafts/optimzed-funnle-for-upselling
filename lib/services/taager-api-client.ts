@@ -143,9 +143,8 @@ export class TaagerApiClient {
       const response = await fetch(endpoint, {
         method: 'GET',
         headers: {
-          'Content-Type': 'application/json',
-          'taagerId': this.config!.taagerId!.toString(),
-          'Authorization': `Bearer ${this.config!.apiKey}`,
+          'accept': 'application/json',
+          'x-api-key': this.config!.apiKey!,
         },
       })
 
