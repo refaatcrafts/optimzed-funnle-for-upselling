@@ -6,31 +6,5 @@
     "postCartUpsellOffers": true,
     "crossSellRecommendations": true
   },
-  "productConfiguration": {
-    "homePagePrimary": "SA030101KMLP99",
-    "recommendations": [
-      "SA050201MSB799",
-      "SA050901NI0099",
-      "SA050201MRES99"
-    ],
-    "frequentlyBoughtTogether": [
-      "SA050301JA00991",
-      "SA040305BV0099"
-    ],
-    "upsellOffers": [
-      "SA050301JA00991"
-    ],
-    "crossSellRecommendations": [
-      "SA040501ST0099"
-    ]
-  },
-  "taagerApi": {
-    "apiKey": "TK-1261720-20250719074702-65B28BB2069B91AF09C720ACA9C1D605",
-    "taagerId": 1260681,
-    "baseUrl": "https://public.api.dev.taager.com",
-    "country": "SAU",
-    "isConfigured": true,
-    "lastValidated": "2025-07-19T11:55:01.776Z"
-  },
-  "lastUpdated": "2025-07-19T12:16:07.348Z"
+  "lastUpdated": "2025-07-19T12:47:07.842Z"
 }

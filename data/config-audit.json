@@ -1,5 +1,77 @@
 [
   {
+    "id": 1752929227844,
+    "action": "RESET",
+    "config_data": "{\"upselling\":{\"frequentlyBoughtTogether\":true,\"youMightAlsoLike\":true,\"freeShippingProgressBar\":true,\"postCartUpsellOffers\":true,\"crossSellRecommendations\":true},\"lastUpdated\":\"2025-07-19T12:47:07.842Z\"}",
+    "timestamp": "2025-07-19T12:47:07.844Z",
+    "platform": "sqlite"
+  },
+  {
+    "id": 1752929227844,
+    "action": "UPDATE",
+    "config_data": "{\"upselling\":{\"frequentlyBoughtTogether\":true,\"youMightAlsoLike\":true,\"freeShippingProgressBar\":true,\"postCartUpsellOffers\":true,\"crossSellRecommendations\":true},\"lastUpdated\":\"2025-07-19T12:47:07.842Z\"}",
+    "timestamp": "2025-07-19T12:47:07.844Z",
+    "platform": "sqlite"
+  },
+  {
+    "id": 1752929208381,
+    "action": "UPDATE",
+    "config_data": "{\"upselling\":{\"frequentlyBoughtTogether\":true,\"youMightAlsoLike\":true,\"freeShippingProgressBar\":true,\"postCartUpsellOffers\":true,\"crossSellRecommendations\":true},\"productConfiguration\":{\"homePagePrimary\":null,\"recommendations\":[],\"frequentlyBoughtTogether\":[],\"upsellOffers\":[],\"crossSellRecommendations\":[]},\"taagerApi\":{\"apiKey\":null,\"taagerId\":null,\"baseUrl\":\"https://public.api.taager.com\",\"country\":\"SAU\",\"isConfigured\":false,\"lastValidated\":null},\"lastUpdated\":\"2025-07-19T12:46:13.617Z\"}",
+    "timestamp": "2025-07-19T12:46:48.381Z",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
+    "platform": "sqlite"
+  },
+  {
+    "id": 1752929208381,
+    "action": "UPDATE",
+    "config_data": "{\"upselling\":{\"frequentlyBoughtTogether\":true,\"youMightAlsoLike\":true,\"freeShippingProgressBar\":true,\"postCartUpsellOffers\":true,\"crossSellRecommendations\":true},\"productConfiguration\":{\"homePagePrimary\":null,\"recommendations\":[],\"frequentlyBoughtTogether\":[],\"upsellOffers\":[],\"crossSellRecommendations\":[]},\"taagerApi\":{\"apiKey\":null,\"taagerId\":null,\"baseUrl\":\"https://public.api.taager.com\",\"country\":\"SAU\",\"isConfigured\":false,\"lastValidated\":null},\"lastUpdated\":\"2025-07-19T12:46:48.380Z\"}",
+    "timestamp": "2025-07-19T12:46:48.381Z",
+    "platform": "sqlite"
+  },
+  {
+    "id": 1752929197484,
+    "action": "UPDATE",
+    "config_data": "{\"upselling\":{\"frequentlyBoughtTogether\":false,\"youMightAlsoLike\":true,\"freeShippingProgressBar\":true,\"postCartUpsellOffers\":true,\"crossSellRecommendations\":true},\"productConfiguration\":{\"homePagePrimary\":null,\"recommendations\":[],\"frequentlyBoughtTogether\":[],\"upsellOffers\":[],\"crossSellRecommendations\":[]},\"taagerApi\":{\"apiKey\":null,\"taagerId\":null,\"baseUrl\":\"https://public.api.taager.com\",\"country\":\"SAU\",\"isConfigured\":false,\"lastValidated\":null},\"lastUpdated\":\"2025-07-19T12:46:13.617Z\"}",
+    "timestamp": "2025-07-19T12:46:37.484Z",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
+    "platform": "sqlite"
+  },
+  {
+    "id": 1752929197483,
+    "action": "UPDATE",
+    "config_data": "{\"upselling\":{\"frequentlyBoughtTogether\":false,\"youMightAlsoLike\":true,\"freeShippingProgressBar\":true,\"postCartUpsellOffers\":true,\"crossSellRecommendations\":true},\"productConfiguration\":{\"homePagePrimary\":null,\"recommendations\":[],\"frequentlyBoughtTogether\":[],\"upsellOffers\":[],\"crossSellRecommendations\":[]},\"taagerApi\":{\"apiKey\":null,\"taagerId\":null,\"baseUrl\":\"https://public.api.taager.com\",\"country\":\"SAU\",\"isConfigured\":false,\"lastValidated\":null},\"lastUpdated\":\"2025-07-19T12:46:37.482Z\"}",
+    "timestamp": "2025-07-19T12:46:37.483Z",
+    "platform": "sqlite"
+  },
+  {
+    "id": 1752928936296,
+    "action": "UPDATE",
+    "config_data": "{\"upselling\":{\"frequentlyBoughtTogether\":true,\"youMightAlsoLike\":true,\"freeShippingProgressBar\":true,\"postCartUpsellOffers\":true,\"crossSellRecommendations\":true},\"productConfiguration\":{\"homePagePrimary\":\"SA030101KMLP99\",\"recommendations\":[\"SA050201MSB799\",\"SA050901NI0099\",\"SA050201MRES99\"],\"frequentlyBoughtTogether\":[\"SA050301JA00991\",\"SA040305BV0099\",\"SA030101KMLP99\"],\"upsellOffers\":[\"SA050301JA00991\"],\"crossSellRecommendations\":[\"SA040501ST0099\"]},\"taagerApi\":{\"apiKey\":\"TK-1261720-20250719074702-65B28BB2069B91AF09C720ACA9C1D605\",\"taagerId\":1260681,\"baseUrl\":\"https://public.api.dev.taager.com\",\"country\":\"SAU\",\"isConfigured\":true,\"lastValidated\":\"2025-07-19T11:55:01.776Z\"},\"lastUpdated\":\"2025-07-19T12:42:16.295Z\"}",
+    "timestamp": "2025-07-19T12:42:16.296Z",
+    "platform": "sqlite"
+  },
+  {
+    "id": 1752928903558,
+    "action": "UPDATE",
+    "config_data": "{\"upselling\":{\"frequentlyBoughtTogether\":true,\"youMightAlsoLike\":true,\"freeShippingProgressBar\":true,\"postCartUpsellOffers\":true,\"crossSellRecommendations\":true},\"productConfiguration\":{\"homePagePrimary\":\"SA030101KMLP99\",\"recommendations\":[\"SA050201MSB799\",\"SA050901NI0099\",\"SA050201MRES99\"],\"frequentlyBoughtTogether\":[\"SA050301JA00991\",\"SA040305BV0099\"],\"upsellOffers\":[\"SA050301JA00991\"],\"crossSellRecommendations\":[\"SA040501ST0099\"]},\"taagerApi\":{\"apiKey\":\"TK-1261720-20250719074702-65B28BB2069B91AF09C720ACA9C1D605\",\"taagerId\":1260681,\"baseUrl\":\"https://public.api.dev.taager.com\",\"country\":\"SAU\",\"isConfigured\":true,\"lastValidated\":\"2025-07-19T11:55:01.776Z\"},\"lastUpdated\":\"2025-07-19T12:41:43.556Z\"}",
+    "timestamp": "2025-07-19T12:41:43.558Z",
+    "platform": "sqlite"
+  },
+  {
+    "id": 1752928832610,
+    "action": "UPDATE",
+    "config_data": "{\"upselling\":{\"frequentlyBoughtTogether\":true,\"youMightAlsoLike\":true,\"freeShippingProgressBar\":true,\"postCartUpsellOffers\":true,\"crossSellRecommendations\":true},\"productConfiguration\":{\"homePagePrimary\":\"SA050901NI0099\",\"recommendations\":[\"SA050201MSB799\",\"SA050901NI0099\",\"SA050201MRES99\"],\"frequentlyBoughtTogether\":[\"SA050301JA00991\",\"SA040305BV0099\"],\"upsellOffers\":[\"SA050301JA00991\"],\"crossSellRecommendations\":[\"SA040501ST0099\"]},\"taagerApi\":{\"apiKey\":\"TK-1261720-20250719074702-65B28BB2069B91AF09C720ACA9C1D605\",\"taagerId\":1260681,\"baseUrl\":\"https://public.api.dev.taager.com\",\"country\":\"SAU\",\"isConfigured\":true,\"lastValidated\":\"2025-07-19T11:55:01.776Z\"},\"lastUpdated\":\"2025-07-19T12:40:32.609Z\"}",
+    "timestamp": "2025-07-19T12:40:32.610Z",
+    "platform": "sqlite"
+  },
+  {
+    "id": 1752928678511,
+    "action": "UPDATE",
+    "config_data": "{\"upselling\":{\"frequentlyBoughtTogether\":true,\"youMightAlsoLike\":true,\"freeShippingProgressBar\":true,\"postCartUpsellOffers\":true,\"crossSellRecommendations\":true},\"productConfiguration\":{\"homePagePrimary\":\"SA040305BV0099\",\"recommendations\":[\"SA050201MSB799\",\"SA050901NI0099\",\"SA050201MRES99\"],\"frequentlyBoughtTogether\":[\"SA050301JA00991\",\"SA040305BV0099\"],\"upsellOffers\":[\"SA050301JA00991\"],\"crossSellRecommendations\":[\"SA040501ST0099\"]},\"taagerApi\":{\"apiKey\":\"TK-1261720-20250719074702-65B28BB2069B91AF09C720ACA9C1D605\",\"taagerId\":1260681,\"baseUrl\":\"https://public.api.dev.taager.com\",\"country\":\"SAU\",\"isConfigured\":true,\"lastValidated\":\"2025-07-19T11:55:01.776Z\"},\"lastUpdated\":\"2025-07-19T12:37:58.510Z\"}",
+    "timestamp": "2025-07-19T12:37:58.511Z",
+    "platform": "sqlite"
+  },
+  {
     "id": 1752927367349,
     "action": "UPDATE",
     "config_data": "{\"upselling\":{\"frequentlyBoughtTogether\":true,\"youMightAlsoLike\":true,\"freeShippingProgressBar\":true,\"postCartUpsellOffers\":true,\"crossSellRecommendations\":true},\"productConfiguration\":{\"homePagePrimary\":\"SA030101KMLP99\",\"recommendations\":[\"SA050201MSB799\",\"SA050901NI0099\",\"SA050201MRES99\"],\"frequentlyBoughtTogether\":[\"SA050301JA00991\",\"SA040305BV0099\"],\"upsellOffers\":[\"SA050301JA00991\"],\"crossSellRecommendations\":[\"SA040501ST0099\"]},\"taagerApi\":{\"apiKey\":\"TK-1261720-20250719074702-65B28BB2069B91AF09C720ACA9C1D605\",\"taagerId\":1260681,\"baseUrl\":\"https://public.api.dev.taager.com\",\"country\":\"SAU\",\"isConfigured\":true,\"lastValidated\":\"2025-07-19T11:55:01.776Z\"},\"lastUpdated\":\"2025-07-19T12:16:07.348Z\"}",

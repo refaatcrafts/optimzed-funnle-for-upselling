@@ -78,10 +78,8 @@ export default function ProductPage() {
 
   const productImages = [
     product.image,
-    PRODUCT_IMAGES.coffeeBeans,
-    PRODUCT_IMAGES.coffeeBlender,
-    PRODUCT_IMAGES.coffeeCup1,
-  ]
+    ...(product.images || []),
+  ].filter(Boolean)
 
   return (
     <ErrorBoundary>
@@ -103,7 +101,7 @@ export default function ProductPage() {
                 isEditable={true}
               />
 
-              <ProductFeatures features={PRODUCT_FEATURES} />
+              <ProductFeatures features={product.features || []} />
             </div>
           </div>
 

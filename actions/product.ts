@@ -80,53 +80,128 @@ export async function getProductBySku(sku: string): Promise<Product | null> {
 
 // This is a conceptual Server Action to get the main product and its associated bundle.
 export async function getInitialProductData(): Promise<ProductData> {
-  await new Promise((resolve) => setTimeout(resolve, 300)) // Simulate network latency
+  try {
+    // Try to fetch dynamic product data from the API
+    const homePageResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/products/home-page`)
+    const homePageResult = await homePageResponse.json()
+    
+    let mainProduct: Product
+    
+    if (homePageResult.success && homePageResult.data) {
+      // Use dynamic product data from API
+      mainProduct = homePageResult.data
+    } else {
+      // Fallback to static data
+      console.warn('Using fallback product data')
+      mainProduct = _productDatabase["SKU001"] || {
+        id: "mocha-pot",
+        name: "Classic Italian Mocha Pot",
+        price: 89,
+        originalPrice: 129,
+        image: "/images/mocha-pot.jpg",
+        rating: 4.8,
+        reviews: 2847,
+      }
+    }
 
-  const mainProduct = _productDatabase["SKU001"] || {
-    id: "mocha-pot",
-    name: "Classic Italian Mocha Pot",
-    price: 89,
-    originalPrice: 129,
-    image: "/images/mocha-pot.jpg",
-    rating: 4.8,
-    reviews: 2847,
+    // Try to fetch dynamic bundle products
+    const bundleResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/products/frequently-bought-together`)
+    const bundleResult = await bundleResponse.json()
+    
+    let bundleProducts: Product[]
+    
+    if (bundleResult.success && bundleResult.data && bundleResult.data.length > 0) {
+      // Use dynamic bundle products from API
+      bundleProducts = bundleResult.data
+    } else {
+      // Fallback to static bundle products
+      console.warn('Using fallback bundle data')
+      bundleProducts = [
+        mainProduct,
+        _productDatabase["SKU002"] || {
+          id: "coffee-blender",
+          name: "High-Performance Coffee Blender",
+          price: 299,
+          originalPrice: 399,
+          image: "/images/coffee-blender.jpg",
+          rating: 4.6,
+          reviews: 892,
+        },
+        _productDatabase["SKU003"] || {
+          id: "coffee-beans",
+          name: "Premium Arabica Coffee Beans (1kg)",
+          price: 29,
+          image: "/images/coffee-beans.jpg",
+          rating: 4.4,
+          reviews: 1203,
+        },
+      ]
+    }
+
+    const originalTotal = bundleProducts.reduce((sum, p) => sum + (p.originalPrice || p.price), 0)
+    const bundlePrice = bundleProducts.reduce((sum, p) => sum + p.price, 0)
+    const savings = Number.parseFloat((originalTotal - bundlePrice).toFixed(2))
+
+    const bundle: Bundle = {
+      id: "bundle-1",
+      name: "Complete Coffee Setup",
+      products: bundleProducts,
+      originalTotal,
+      bundlePrice,
+      savings,
+    }
+
+    return { mainProduct, bundle }
+  } catch (error) {
+    console.error('Failed to fetch dynamic product data, using fallback:', error)
+    
+    // Complete fallback to static data
+    const mainProduct = _productDatabase["SKU001"] || {
+      id: "mocha-pot",
+      name: "Classic Italian Mocha Pot",
+      price: 89,
+      originalPrice: 129,
+      image: "/images/mocha-pot.jpg",
+      rating: 4.8,
+      reviews: 2847,
+    }
+
+    const bundleProducts = [
+      mainProduct,
+      _productDatabase["SKU002"] || {
+        id: "coffee-blender",
+        name: "High-Performance Coffee Blender",
+        price: 299,
+        originalPrice: 399,
+        image: "/images/coffee-blender.jpg",
+        rating: 4.6,
+        reviews: 892,
+      },
+      _productDatabase["SKU003"] || {
+        id: "coffee-beans",
+        name: "Premium Arabica Coffee Beans (1kg)",
+        price: 29,
+        image: "/images/coffee-beans.jpg",
+        rating: 4.4,
+        reviews: 1203,
+      },
+    ]
+
+    const originalTotal = bundleProducts.reduce((sum, p) => sum + (p.originalPrice || p.price), 0)
+    const bundlePrice = bundleProducts.reduce((sum, p) => sum + p.price, 0)
+    const savings = Number.parseFloat((originalTotal - bundlePrice).toFixed(2))
+
+    const bundle: Bundle = {
+      id: "bundle-1",
+      name: "Complete Coffee Setup",
+      products: bundleProducts,
+      originalTotal,
+      bundlePrice,
+      savings,
+    }
+
+    return { mainProduct, bundle }
   }
-
-  const bundleProducts = [
-    mainProduct,
-    _productDatabase["SKU002"] || {
-      id: "coffee-blender",
-      name: "High-Performance Coffee Blender",
-      price: 299,
-      originalPrice: 399,
-      image: "/images/coffee-blender.jpg",
-      rating: 4.6,
-      reviews: 892,
-    },
-    _productDatabase["SKU003"] || {
-      id: "coffee-beans",
-      name: "Premium Arabica Coffee Beans (1kg)",
-      price: 29,
-      image: "/images/coffee-beans.jpg",
-      rating: 4.4,
-      reviews: 1203,
-    },
-  ]
-
-  const originalTotal = bundleProducts.reduce((sum, p) => sum + (p.originalPrice || p.price), 0)
-  const bundlePrice = bundleProducts.reduce((sum, p) => sum + p.price, 0)
-  const savings = Number.parseFloat((originalTotal - bundlePrice).toFixed(2))
-
-  const bundle: Bundle = {
-    id: "bundle-1",
-    name: "Complete Coffee Setup",
-    products: bundleProducts,
-    originalTotal,
-    bundlePrice,
-    savings,
-  }
-
-  return { mainProduct, bundle }
 }
 
 // This is a conceptual Server Action to update product data.
