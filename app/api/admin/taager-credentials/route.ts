@@ -59,12 +59,22 @@ async function putHandler(request: AuthenticatedRequest): Promise<NextResponse> 
       }, { status: 400 })
     }
     
-    // Set the credentials (this will also validate them)
-    const success = await configService.setApiCredentials(credentials)
+    // Get current config and update with new credentials
+    const config = await serverConfigService.getConfig()
+    
+    // Update Taager API configuration
+    config.taagerApi = {
+      ...config.taagerApi,
+      ...credentials,
+      isConfigured: !!(credentials.apiKey && credentials.taagerId),
+      lastValidated: new Date().toISOString()
+    }
+    
+    // Save the updated configuration
+    const success = await serverConfigService.saveConfig(config)
     
     if (success) {
       // Return updated credentials (without sensitive data)
-      const config = await serverConfigService.getConfig()
       const safeCredentials = {
         taagerId: config.taagerApi.taagerId,
         baseUrl: config.taagerApi.baseUrl,
@@ -82,7 +92,7 @@ async function putHandler(request: AuthenticatedRequest): Promise<NextResponse> 
     } else {
       return NextResponse.json({
         success: false,
-        error: 'Failed to save or validate Taager API credentials',
+        error: 'Failed to save Taager API credentials',
         timestamp: new Date().toISOString()
       }, { status: 400 })
     }

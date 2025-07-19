@@ -1,5 +1,12 @@
 [
   {
+    "id": 1752912767831,
+    "action": "UPDATE",
+    "config_data": "{\"upselling\":{\"frequentlyBoughtTogether\":true,\"youMightAlsoLike\":false,\"freeShippingProgressBar\":false,\"postCartUpsellOffers\":true,\"crossSellRecommendations\":true},\"productConfiguration\":{\"homePagePrimary\":null,\"recommendations\":[],\"frequentlyBoughtTogether\":[],\"upsellOffers\":[],\"crossSellRecommendations\":[]},\"taagerApi\":{\"apiKey\":\"TK-1261720-20250719074702-65B28BB2069B91AF09C720ACA9C1D605\",\"taagerId\":1260681,\"baseUrl\":\"https://public.api.taager.com\",\"country\":\"SAU\",\"isConfigured\":true,\"lastValidated\":\"2025-07-19T08:12:47.829Z\"},\"lastUpdated\":\"2025-07-19T08:12:47.830Z\"}",
+    "timestamp": "2025-07-19T08:12:47.831Z",
+    "platform": "sqlite"
+  },
+  {
     "id": 1752910700101,
     "action": "UPDATE",
     "config_data": "{\"upselling\":{\"frequentlyBoughtTogether\":true,\"youMightAlsoLike\":false,\"freeShippingProgressBar\":false,\"postCartUpsellOffers\":true,\"crossSellRecommendations\":true},\"productConfiguration\":{\"homePagePrimary\":null,\"recommendations\":[],\"frequentlyBoughtTogether\":[],\"upsellOffers\":[],\"crossSellRecommendations\":[]},\"taagerApi\":{\"apiKey\":null,\"taagerId\":null,\"baseUrl\":\"https://public.api.taager.com\",\"country\":\"SAU\",\"isConfigured\":false,\"lastValidated\":null},\"lastUpdated\":\"2025-07-19T07:38:12.855Z\"}",

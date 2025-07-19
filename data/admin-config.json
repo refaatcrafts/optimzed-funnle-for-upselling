@@ -14,12 +14,12 @@
     "crossSellRecommendations": []
   },
   "taagerApi": {
-    "apiKey": null,
-    "taagerId": null,
+    "apiKey": "TK-1261720-20250719074702-65B28BB2069B91AF09C720ACA9C1D605",
+    "taagerId": 1260681,
     "baseUrl": "https://public.api.taager.com",
     "country": "SAU",
-    "isConfigured": false,
-    "lastValidated": null
+    "isConfigured": true,
+    "lastValidated": "2025-07-19T08:12:47.829Z"
   },
-  "lastUpdated": "2025-07-19T07:38:20.099Z"
+  "lastUpdated": "2025-07-19T08:12:47.830Z"
 }
