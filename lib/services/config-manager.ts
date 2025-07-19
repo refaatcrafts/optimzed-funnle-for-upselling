@@ -1,5 +1,5 @@
-import { AdminConfig } from '@/lib/types/admin'
-import { DEFAULT_ADMIN_CONFIG, SESSION_CONFIG } from '@/lib/constants/admin'
+import { AdminConfig, ProductConfiguration, TaagerApiConfig } from '@/lib/types/admin'
+import { DEFAULT_ADMIN_CONFIG, SESSION_CONFIG, isValidExtendedAdminConfig } from '@/lib/constants/admin'
 import { RetryManager, createConfigError, ConfigError, ERROR_CODES } from '@/lib/utils/errors'
 import { AdminAuthService } from '@/lib/services/admin-auth'
 
@@ -35,10 +35,10 @@ export class ConfigurationManager {
       const configError = createConfigError(error, 'getConfig')
       console.warn('Server unavailable, using cache:', configError.message)
       this.isServerAvailable = false
-      
+
       // Show platform-specific warning
       this.showPlatformWarning(error)
-      
+
       // Fallback to localStorage
       return this.getConfigFromCache()
     }
@@ -117,10 +117,166 @@ export class ConfigurationManager {
     }
   }
 
+  // Product configuration methods
+  static async updateProductConfiguration(updates: Partial<ProductConfiguration>): Promise<boolean> {
+    try {
+      const config = await this.getConfig()
+
+      // Merge updates with existing configuration
+      config.productConfiguration = {
+        ...config.productConfiguration,
+        ...updates
+      }
+
+      return await this.saveConfig(config)
+    } catch (error) {
+      console.error('Failed to update product configuration:', error)
+      return false
+    }
+  }
+
+  static async updateTaagerApiConfig(updates: Partial<TaagerApiConfig>): Promise<boolean> {
+    try {
+      const config = await this.getConfig()
+
+      // Merge updates with existing configuration
+      config.taagerApi = {
+        ...config.taagerApi,
+        ...updates
+      }
+
+      return await this.saveConfig(config)
+    } catch (error) {
+      console.error('Failed to update Taager API configuration:', error)
+      return false
+    }
+  }
+
+  static async setHomePagePrimary(sku: string | null): Promise<boolean> {
+    return await this.updateProductConfiguration({ homePagePrimary: sku })
+  }
+
+  static async addRecommendation(sku: string): Promise<boolean> {
+    try {
+      const config = await this.getConfig()
+      const recommendations = [...config.productConfiguration.recommendations]
+
+      if (!recommendations.includes(sku)) {
+        recommendations.push(sku)
+        return await this.updateProductConfiguration({ recommendations })
+      }
+
+      return true // Already exists
+    } catch (error) {
+      console.error('Failed to add recommendation:', error)
+      return false
+    }
+  }
+
+  static async removeRecommendation(sku: string): Promise<boolean> {
+    try {
+      const config = await this.getConfig()
+      const recommendations = config.productConfiguration.recommendations.filter(s => s !== sku)
+      return await this.updateProductConfiguration({ recommendations })
+    } catch (error) {
+      console.error('Failed to remove recommendation:', error)
+      return false
+    }
+  }
+
+  static async addFrequentlyBoughtTogether(sku: string): Promise<boolean> {
+    try {
+      const config = await this.getConfig()
+      const frequentlyBoughtTogether = [...config.productConfiguration.frequentlyBoughtTogether]
+
+      if (!frequentlyBoughtTogether.includes(sku)) {
+        frequentlyBoughtTogether.push(sku)
+        return await this.updateProductConfiguration({ frequentlyBoughtTogether })
+      }
+
+      return true // Already exists
+    } catch (error) {
+      console.error('Failed to add frequently bought together:', error)
+      return false
+    }
+  }
+
+  static async removeFrequentlyBoughtTogether(sku: string): Promise<boolean> {
+    try {
+      const config = await this.getConfig()
+      const frequentlyBoughtTogether = config.productConfiguration.frequentlyBoughtTogether.filter(s => s !== sku)
+      return await this.updateProductConfiguration({ frequentlyBoughtTogether })
+    } catch (error) {
+      console.error('Failed to remove frequently bought together:', error)
+      return false
+    }
+  }
+
+  static async addUpsellOffer(sku: string): Promise<boolean> {
+    try {
+      const config = await this.getConfig()
+      const upsellOffers = [...config.productConfiguration.upsellOffers]
+
+      if (!upsellOffers.includes(sku)) {
+        upsellOffers.push(sku)
+        return await this.updateProductConfiguration({ upsellOffers })
+      }
+
+      return true // Already exists
+    } catch (error) {
+      console.error('Failed to add upsell offer:', error)
+      return false
+    }
+  }
+
+  static async removeUpsellOffer(sku: string): Promise<boolean> {
+    try {
+      const config = await this.getConfig()
+      const upsellOffers = config.productConfiguration.upsellOffers.filter(s => s !== sku)
+      return await this.updateProductConfiguration({ upsellOffers })
+    } catch (error) {
+      console.error('Failed to remove upsell offer:', error)
+      return false
+    }
+  }
+
+  static async addCrossSellRecommendation(sku: string): Promise<boolean> {
+    try {
+      const config = await this.getConfig()
+      const crossSellRecommendations = [...config.productConfiguration.crossSellRecommendations]
+
+      if (!crossSellRecommendations.includes(sku)) {
+        crossSellRecommendations.push(sku)
+        return await this.updateProductConfiguration({ crossSellRecommendations })
+      }
+
+      return true // Already exists
+    } catch (error) {
+      console.error('Failed to add cross-sell recommendation:', error)
+      return false
+    }
+  }
+
+  static async removeCrossSellRecommendation(sku: string): Promise<boolean> {
+    try {
+      const config = await this.getConfig()
+      const crossSellRecommendations = config.productConfiguration.crossSellRecommendations.filter(s => s !== sku)
+      return await this.updateProductConfiguration({ crossSellRecommendations })
+    } catch (error) {
+      console.error('Failed to remove cross-sell recommendation:', error)
+      return false
+    }
+  }
+
   static async resetToDefaults(): Promise<AdminConfig> {
     try {
       // Try server reset first with retry logic
       const result = await RetryManager.withRetry(async () => {
+        // Skip server calls if we're on the server side to avoid circular calls
+        if (typeof window === 'undefined') {
+          throw new Error('Server-side fetch not supported')
+        }
+
         const authHeaders = AdminAuthService.getAuthHeaders()
         const response = await fetch('/api/admin/config/reset', {
           method: 'POST',
@@ -161,6 +317,11 @@ export class ConfigurationManager {
 
   // Server communication methods
   private static async getConfigFromServer(): Promise<AdminConfig> {
+    // Skip server calls if we're on the server side to avoid circular calls
+    if (typeof window === 'undefined') {
+      throw new Error('Server-side fetch not supported')
+    }
+
     // First try the public endpoint (no auth required)
     try {
       const response = await fetch('/api/config', {
@@ -220,6 +381,11 @@ export class ConfigurationManager {
   }
 
   private static async saveConfigToServer(config: AdminConfig): Promise<boolean> {
+    // Skip server calls if we're on the server side to avoid circular calls
+    if (typeof window === 'undefined') {
+      throw new Error('Server-side fetch not supported')
+    }
+
     const authHeaders = AdminAuthService.getAuthHeaders()
     const response = await fetch('/api/admin/config', {
       method: 'PUT',
@@ -339,6 +505,11 @@ export class ConfigurationManager {
 
   static async checkServerHealth(): Promise<boolean> {
     try {
+      // Skip server calls if we're on the server side to avoid circular calls
+      if (typeof window === 'undefined') {
+        return false
+      }
+
       const authHeaders = AdminAuthService.getAuthHeaders()
       const response = await fetch('/api/admin/health', {
         method: 'GET',
@@ -367,6 +538,11 @@ export class ConfigurationManager {
     }
 
     try {
+      // Skip server calls if we're on the server side to avoid circular calls
+      if (typeof window === 'undefined') {
+        return null
+      }
+
       const authHeaders = AdminAuthService.getAuthHeaders()
       const response = await fetch('/api/admin/platform', {
         method: 'GET',
@@ -451,21 +627,7 @@ export class ConfigurationManager {
   }
 
   private static isValidConfig(config: any): config is AdminConfig {
-    if (!config || typeof config !== 'object') return false
-
-    if (!config.upselling || typeof config.upselling !== 'object') return false
-
-    const requiredFeatures: (keyof AdminConfig['upselling'])[] = [
-      'frequentlyBoughtTogether',
-      'youMightAlsoLike',
-      'freeShippingProgressBar',
-      'postCartUpsellOffers',
-      'crossSellRecommendations',
-    ]
-
-    return requiredFeatures.every(
-      feature => typeof config.upselling[feature] === 'boolean'
-    )
+    return isValidExtendedAdminConfig(config)
   }
 
   static async validateAndRepair(): Promise<AdminConfig> {

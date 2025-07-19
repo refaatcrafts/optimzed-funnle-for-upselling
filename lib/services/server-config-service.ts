@@ -3,6 +3,7 @@ import { StorageAdapter, ConfigAuditEntry } from '@/lib/storage/storage-adapter'
 import { StorageAdapterFactory } from '@/lib/storage/factory'
 import { PlatformInfo } from '@/lib/storage/platform-detector'
 import { ConfigError, CONFIG_ERRORS } from '@/lib/storage/errors'
+import { isValidExtendedAdminConfig } from '@/lib/constants/admin'
 
 export class ServerConfigService {
   private adapter: StorageAdapter | null = null
@@ -97,21 +98,27 @@ export class ServerConfigService {
         postCartUpsellOffers: true,
         crossSellRecommendations: true
       },
+      productConfiguration: {
+        homePagePrimary: null,
+        recommendations: [],
+        frequentlyBoughtTogether: [],
+        upsellOffers: [],
+        crossSellRecommendations: []
+      },
+      taagerApi: {
+        apiKey: null,
+        taagerId: null,
+        baseUrl: 'https://public.api.taager.com',
+        country: 'SAU',
+        isConfigured: false,
+        lastValidated: null
+      },
       lastUpdated: new Date().toISOString()
     }
   }
 
   private isValidConfig(config: any): config is AdminConfig {
-    return config && 
-           typeof config === 'object' && 
-           'upselling' in config && 
-           'lastUpdated' in config &&
-           typeof config.upselling === 'object' &&
-           typeof config.upselling.frequentlyBoughtTogether === 'boolean' &&
-           typeof config.upselling.youMightAlsoLike === 'boolean' &&
-           typeof config.upselling.freeShippingProgressBar === 'boolean' &&
-           typeof config.upselling.postCartUpsellOffers === 'boolean' &&
-           typeof config.upselling.crossSellRecommendations === 'boolean'
+    return isValidExtendedAdminConfig(config)
   }
 
   // Export/Import functionality

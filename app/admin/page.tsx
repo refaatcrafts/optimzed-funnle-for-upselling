@@ -171,6 +171,15 @@ export default function AdminPage() {
               <Button
                 variant="outline"
                 size="sm"
+                onClick={() => router.push('/admin/product-config')}
+                className="text-blue-600 hover:text-blue-800 border-blue-200"
+              >
+                <Settings className="w-4 h-4 mr-2" />
+                Product Config
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={handleLogout}
                 className="text-gray-600 hover:text-gray-800"
               >

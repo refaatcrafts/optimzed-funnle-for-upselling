@@ -1,10 +1,25 @@
 {
   "upselling": {
-    "frequentlyBoughtTogether": false,
+    "frequentlyBoughtTogether": true,
     "youMightAlsoLike": false,
     "freeShippingProgressBar": false,
     "postCartUpsellOffers": true,
     "crossSellRecommendations": true
   },
-  "lastUpdated": "2025-07-18T17:53:31.268Z"
+  "productConfiguration": {
+    "homePagePrimary": null,
+    "recommendations": [],
+    "frequentlyBoughtTogether": [],
+    "upsellOffers": [],
+    "crossSellRecommendations": []
+  },
+  "taagerApi": {
+    "apiKey": null,
+    "taagerId": null,
+    "baseUrl": "https://public.api.taager.com",
+    "country": "SAU",
+    "isConfigured": false,
+    "lastValidated": null
+  },
+  "lastUpdated": "2025-07-19T07:38:20.099Z"
 }
