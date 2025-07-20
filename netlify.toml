@@ -1,29 +1,28 @@
 [build]
 command = "npm run build"
-publish = ".next"
+publish = "out"
 
 [build.environment]
-NODE_VERSION = "18"
+NODE_VERSION = "20"
+NEXT_PRIVATE_TARGET = "server"
 
+# Next.js runtime for Netlify
 [functions]
 directory = ".netlify/functions"
 node_bundler = "esbuild"
 
-# Redirect all API routes to Next.js
+# Essential for Next.js API routes on Netlify
+[[plugins]]
+package = "@netlify/plugin-nextjs"
+
+# Handle Next.js API routes
 [[redirects]]
 from = "/api/*"
 to = "/.netlify/functions/___netlify-handler"
 status = 200
 
-# Handle client-side routing
+# Handle Next.js pages
 [[redirects]]
 from = "/*"
-to = "/index.html"
-status = 200
-conditions = { Role = ["admin"] }
-
-# Default redirect for SPA
-[[redirects]]
-from = "/*"
-to = "/index.html"
+to = "/.netlify/functions/___netlify-handler"
 status = 200

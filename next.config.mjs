@@ -9,6 +9,8 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  // Remove output: 'export' to enable API routes on Netlify
+  trailingSlash: true,
 }
 
 export default nextConfig
